@@ -1,0 +1,32 @@
+[package]
+name = "zktrace-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+description = "Core cryptographic primitives, canonical serialization, and domain types for ZKTrace"
+
+[dependencies]
+ark-ff = { workspace = true, features = ["std"] }
+ark-bn254 = { workspace = true, features = ["std"] }
+ark-crypto-primitives = { workspace = true, features = ["sponge", "r1cs", "std"] }
+ark-std = { workspace = true, features = ["std"] }
+ark-serialize = { workspace = true, features = ["std"] }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+sha2 = { workspace = true }
+num-bigint = { workspace = true }
+num-traits = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
