@@ -1,0 +1,27 @@
+[package]
+name = "zktrace-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+description = "Model Context Protocol (MCP) JSON-RPC 2.0 proxy and Zero-Knowledge audit interceptor for ZKTrace"
+
+[dependencies]
+zktrace-core = { workspace = true }
+zktrace-prover = { workspace = true }
+zktrace-ledger = { workspace = true }
+
+tokio = { workspace = true }
+futures-util = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.12"
+zktrace-verifier = { workspace = true }
