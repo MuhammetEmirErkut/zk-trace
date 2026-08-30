@@ -19,7 +19,9 @@ fn test_end_to_end_proving_and_verification() {
     let rule = PolicyRule::new("execute_payment", "Stripe payment gateway").with_constraint(
         ParamConstraint {
             param_name: "amount".to_string(),
-            constraint: ConstraintType::MaxSpendLimit { max_amount: 100_000 },
+            constraint: ConstraintType::MaxSpendLimit {
+                max_amount: 100_000,
+            },
         },
     );
     policy_tree.add_rule(rule);
@@ -49,7 +51,8 @@ fn test_end_to_end_proving_and_verification() {
 
     // 5. Verify proof mathematically using Arkworks Groth16
     let proof_raw = receipt.proof.to_bytes().expect("Proof decode failed");
-    let proof = Proof::<Bn254>::deserialize_compressed(&proof_raw[..]).expect("Proof deserialization failed");
+    let proof = Proof::<Bn254>::deserialize_compressed(&proof_raw[..])
+        .expect("Proof deserialization failed");
     let public_inputs = receipt.public_inputs.to_field_elements();
 
     let is_valid = Groth16::<Bn254>::verify(&keys.vk, &public_inputs, &proof)

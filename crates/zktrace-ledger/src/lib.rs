@@ -3,7 +3,6 @@
 //! Immutable append-only cryptographic ledger engine backed by Incremental Poseidon Merkle Trees,
 //! persistent disk storage, and `.zktrace` audit bundle packaging for the ZKTrace ecosystem.
 
-#![warn(missing_docs)]
 #![deny(unsafe_code)]
 #![warn(rust_2018_idioms)]
 

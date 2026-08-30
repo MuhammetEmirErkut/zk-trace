@@ -1,6 +1,7 @@
 //! Instant sub-5ms Zero-Knowledge verifier engine backed by pre-computed pairing elements.
 
 use std::time::Instant;
+
 use ark_bn254::Bn254;
 use ark_groth16::{prepare_verifying_key, Groth16, PreparedVerifyingKey, Proof, VerifyingKey};
 use ark_serialize::CanonicalDeserialize;
@@ -32,8 +33,9 @@ impl ZKTraceVerifier {
         proof: &Proof<Bn254>,
         public_inputs: &[Fr],
     ) -> VerifierResult<bool> {
-        Groth16::<Bn254>::verify_with_processed_vk(&self.pvk, public_inputs, proof)
-            .map_err(|e| VerifierError::ExecutionError(format!("Groth16 pairing check failed: {}", e)))
+        Groth16::<Bn254>::verify_with_processed_vk(&self.pvk, public_inputs, proof).map_err(|e| {
+            VerifierError::ExecutionError(format!("Groth16 pairing check failed: {}", e))
+        })
     }
 
     /// Verifies a complete `.zktrace` `AuditReceipt` against optional expected policy and ledger roots.
@@ -108,7 +110,8 @@ impl ZKTraceVerifier {
                 "Committed policy root does not match active enterprise policy.".to_string()
             }
             VerificationVerdict::MerkleInclusionFailed => {
-                "Merkle inclusion proof verification failed against committed ledger root.".to_string()
+                "Merkle inclusion proof verification failed against committed ledger root."
+                    .to_string()
             }
             VerificationVerdict::TimestampExpired => {
                 "Execution timestamp exceeded bounded timestamp window.".to_string()

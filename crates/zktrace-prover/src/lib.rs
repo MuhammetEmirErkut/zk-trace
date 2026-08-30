@@ -3,7 +3,6 @@
 //! High-performance Groth16 Zero-Knowledge Prover and automated witness synthesis engine
 //! for generating verifiable audit receipts in the ZKTrace architecture.
 
-#![warn(missing_docs)]
 #![deny(unsafe_code)]
 #![warn(rust_2018_idioms)]
 
