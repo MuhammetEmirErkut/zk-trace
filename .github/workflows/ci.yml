@@ -23,6 +23,9 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Generate Cargo.lock
+        run: cargo generate-lockfile
+
       - name: Cache Cargo Dependencies
         uses: actions/cache@v4
         with:
@@ -48,6 +51,9 @@ jobs:
       - name: Install Rust Stable Toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Generate Cargo.lock
+        run: cargo generate-lockfile
+
       - name: Cache Cargo Dependencies
         uses: actions/cache@v4
         with:
@@ -66,6 +72,12 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+
+      - name: Install Rust Stable Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Generate Cargo.lock
+        run: cargo generate-lockfile
 
       - name: Run Cargo Audit
         uses: rustsec/audit-check@v2.0.0

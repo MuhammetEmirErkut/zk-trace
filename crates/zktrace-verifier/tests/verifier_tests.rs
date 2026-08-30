@@ -54,7 +54,10 @@ fn test_instant_verifier_valid_receipt() {
     assert_eq!(report.verdict, VerificationVerdict::Valid);
     assert!(report.proof_verified);
     assert!(report.policy_root_matched);
-    println!("Verified receipt in {} microseconds", report.duration_micros);
+    println!(
+        "Verified receipt in {} microseconds",
+        report.duration_micros
+    );
 }
 
 #[test]

@@ -70,7 +70,8 @@ pub struct MerkleTree {
     zero_hashes: Vec<Fr>,
 }
 
-fn serialize_fr_vec<S>(vec: &[Fr], serializer: S) -> Result<S::Ok, S::Error>
+/// Serializes a vector of field elements to hex strings for Serde.
+pub fn serialize_fr_vec<S>(vec: &[Fr], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
@@ -78,7 +79,8 @@ where
     hex_vec.serialize(serializer)
 }
 
-fn deserialize_fr_vec<'de, D>(deserializer: D) -> Result<Vec<Fr>, D::Error>
+/// Deserializes a vector of field elements from hex strings for Serde.
+pub fn deserialize_fr_vec<'de, D>(deserializer: D) -> Result<Vec<Fr>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {

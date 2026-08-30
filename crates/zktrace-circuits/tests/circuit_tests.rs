@@ -61,12 +61,20 @@ fn test_end_to_end_circuit_valid_execution() {
     };
 
     // 4. Synthesize constraints and verify satisfaction
-    circuit.generate_constraints(cs.clone()).expect("Synthesis must succeed");
-    assert!(cs.is_satisfied().expect("Constraint satisfaction check"), "Circuit must be satisfied");
+    circuit
+        .generate_constraints(cs.clone())
+        .expect("Synthesis must succeed");
+    assert!(
+        cs.is_satisfied().expect("Constraint satisfaction check"),
+        "Circuit must be satisfied"
+    );
 
     // 5. Verify constraint count efficiency
     let num_constraints = cs.num_constraints();
-    println!("Total R1CS constraints in ExecutionPolicyCircuit: {}", num_constraints);
+    println!(
+        "Total R1CS constraints in ExecutionPolicyCircuit: {}",
+        num_constraints
+    );
     assert!(num_constraints > 0);
 }
 
@@ -101,5 +109,8 @@ fn test_circuit_rejects_forged_execution_digest() {
     };
 
     circuit.generate_constraints(cs.clone()).expect("Synthesis");
-    assert!(!cs.is_satisfied().expect("Check satisfaction"), "Circuit MUST reject forged digest");
+    assert!(
+        !cs.is_satisfied().expect("Check satisfaction"),
+        "Circuit MUST reject forged digest"
+    );
 }

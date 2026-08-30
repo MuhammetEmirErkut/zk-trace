@@ -24,7 +24,8 @@ pub fn execute_verify(
 
     // 1. Load or generate verifying key
     let vk = if let Some(vp) = vk_path {
-        let mut vk_file = File::open(vp).with_context(|| format!("Failed to open VK file {:?}", vp))?;
+        let mut vk_file =
+            File::open(vp).with_context(|| format!("Failed to open VK file {:?}", vp))?;
         let mut vk_bytes = Vec::new();
         vk_file.read_to_end(&mut vk_bytes)?;
         ProverKeys::deserialize_vk(&vk_bytes).map_err(|e| anyhow::anyhow!("VK error: {}", e))?
@@ -55,9 +56,16 @@ pub fn execute_verify(
 
         print_receipt_report(&report);
     } else if let Ok(bundle) = serde_json::from_str::<AuditBundle>(&content) {
-        println!("📦 Detected AuditBundle with {} receipts", bundle.receipts.len());
+        println!(
+            "📦 Detected AuditBundle with {} receipts",
+            bundle.receipts.len()
+        );
         let reports = verifier
-            .verify_batch(&bundle.receipts, expected_pr.as_ref(), Some(&bundle.ledger_root))
+            .verify_batch(
+                &bundle.receipts,
+                expected_pr.as_ref(),
+                Some(&bundle.ledger_root),
+            )
             .map_err(|e| anyhow::anyhow!("Batch verification failed: {}", e))?;
 
         let mut all_valid = true;
@@ -71,13 +79,18 @@ pub fn execute_verify(
 
         println!("\n============================================================");
         if all_valid {
-            println!("🎉 ALL {} RECEIPTS IN BUNDLE VERIFIED SUCCESSFULLY!", reports.len());
+            println!(
+                "🎉 ALL {} RECEIPTS IN BUNDLE VERIFIED SUCCESSFULLY!",
+                reports.len()
+            );
         } else {
             println!("❌ ONE OR MORE RECEIPTS IN BUNDLE FAILED AUDIT!");
         }
         println!("============================================================");
     } else {
-        return Err(anyhow::anyhow!("Unrecognized file format: Not a valid .zktrace receipt or bundle"));
+        return Err(anyhow::anyhow!(
+            "Unrecognized file format: Not a valid .zktrace receipt or bundle"
+        ));
     }
 
     Ok(())

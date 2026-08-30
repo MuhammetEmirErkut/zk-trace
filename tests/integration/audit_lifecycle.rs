@@ -104,16 +104,27 @@ async fn test_full_enterprise_ai_agent_audit_lifecycle() {
         .expect("Auditor bundle import failed");
 
     let reports = verifier
-        .verify_batch(&auditor_bundle.receipts, Some(&policy_root), Some(&auditor_bundle.ledger_root))
+        .verify_batch(
+            &auditor_bundle.receipts,
+            Some(&policy_root),
+            Some(&auditor_bundle.ledger_root),
+        )
         .expect("Auditor batch verification failed");
 
     assert_eq!(reports.len(), 2);
     for (i, report) in reports.iter().enumerate() {
-        assert!(report.is_valid, "Receipt #{} must be cryptographically valid", i + 1);
+        assert!(
+            report.is_valid,
+            "Receipt #{} must be cryptographically valid",
+            i + 1
+        );
         assert_eq!(report.verdict, VerificationVerdict::Valid);
         assert!(report.proof_verified);
         assert!(report.policy_root_matched);
-        assert!(report.duration_micros < 50_000, "Verification must complete in milliseconds");
+        assert!(
+            report.duration_micros < 50_000,
+            "Verification must complete in milliseconds"
+        );
     }
 
     println!("🎉 Complete E2E Audit Lifecycle Verified Successfully!");
