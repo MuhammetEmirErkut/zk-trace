@@ -5,6 +5,7 @@ members = [
     "crates/zktrace-circuits",
     "crates/zktrace-prover",
     "crates/zktrace-verifier",
+    "crates/zktrace-ledger",
 ]
 
 [workspace.package]
@@ -52,6 +53,7 @@ zktrace-core = { path = "crates/zktrace-core" }
 zktrace-circuits = { path = "crates/zktrace-circuits" }
 zktrace-prover = { path = "crates/zktrace-prover" }
 zktrace-verifier = { path = "crates/zktrace-verifier" }
+zktrace-ledger = { path = "crates/zktrace-ledger" }
 
 [profile.release]
 opt-level = 3
