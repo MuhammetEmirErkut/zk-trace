@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/zktrace-core",
+    "crates/zktrace-circuits",
 ]
 
 [workspace.package]
@@ -46,6 +47,7 @@ uuid = { version = "1.10", features = ["v4", "serde"] }
 
 # Internal workspace crates
 zktrace-core = { path = "crates/zktrace-core" }
+zktrace-circuits = { path = "crates/zktrace-circuits" }
 
 [profile.release]
 opt-level = 3
