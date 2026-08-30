@@ -27,7 +27,8 @@ struct AppState {
 /// Launches the high-throughput HTTP REST API verifier daemon.
 pub async fn execute_server(port: u16, vk_path: Option<&Path>) -> Result<()> {
     let vk = if let Some(vp) = vk_path {
-        let mut vk_file = File::open(vp).with_context(|| format!("Failed to open VK file {:?}", vp))?;
+        let mut vk_file =
+            File::open(vp).with_context(|| format!("Failed to open VK file {:?}", vp))?;
         let mut vk_bytes = Vec::new();
         vk_file.read_to_end(&mut vk_bytes)?;
         ProverKeys::deserialize_vk(&vk_bytes).map_err(|e| anyhow::anyhow!("VK error: {}", e))?

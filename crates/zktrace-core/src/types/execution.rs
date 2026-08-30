@@ -4,7 +4,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::crypto::field::{deserialize_fr, fr_to_hex, serialize_fr, Fr};
+use crate::crypto::field::{deserialize_fr, serialize_fr, Fr};
 use crate::crypto::poseidon::{poseidon_hash_bytes, poseidon_hash_many};
 
 /// Identity commitment representing the executing AI Agent.
@@ -148,11 +148,7 @@ impl ExecutionEvent {
     /// $L = \text{Poseidon}(\text{AgentPubKeyHash}, \text{SessionID}, \text{DigestCommitment})$
     pub fn compute_ledger_leaf(&self) -> Fr {
         let digest_commitment = self.digest.compute_commitment();
-        poseidon_hash_many(&[
-            self.agent.pubkey_hash,
-            self.session_id,
-            digest_commitment,
-        ])
+        poseidon_hash_many(&[self.agent.pubkey_hash, self.session_id, digest_commitment])
     }
 }
 

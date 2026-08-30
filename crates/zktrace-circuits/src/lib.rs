@@ -15,9 +15,9 @@ pub mod prelude {
     pub use crate::circuit::ExecutionPolicyCircuit;
     pub use crate::error::{CircuitError, CircuitResult};
     pub use crate::gadgets::{
-        enforce_in_range_constant, enforce_less_than_or_equal_constant,
-        poseidon_hash_1_gadget, poseidon_hash_2_gadget, poseidon_hash_many_gadget,
-        MerklePathVar, MerkleProofStepVar,
+        enforce_in_range_constant, enforce_less_than_or_equal_constant, MerklePathVar,
+        MerkleProofStepVar, poseidon_hash_1_gadget, poseidon_hash_2_gadget,
+        poseidon_hash_many_gadget,
     };
     pub use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 }

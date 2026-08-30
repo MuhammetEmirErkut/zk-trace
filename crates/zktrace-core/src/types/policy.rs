@@ -2,10 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::crypto::field::{deserialize_fr, fr_to_hex, serialize_fr, Fr};
+use crate::crypto::field::{deserialize_fr, serialize_fr, Fr};
 use crate::crypto::merkle::MerkleTree;
 use crate::crypto::poseidon::{poseidon_hash_2, poseidon_hash_bytes};
-use crate::error::{CoreError, CoreResult};
+use crate::error::CoreResult;
 
 /// Parameter constraint definition enforced by cryptographic circuits.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

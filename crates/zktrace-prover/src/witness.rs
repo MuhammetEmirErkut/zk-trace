@@ -128,12 +128,11 @@ mod tests {
         );
 
         let mut policy_tree = PolicyTree::new("test-policy", 1);
-        let rule = PolicyRule::new("sql_query", "SQL query tool").with_constraint(
-            ParamConstraint {
+        let rule =
+            PolicyRule::new("sql_query", "SQL query tool").with_constraint(ParamConstraint {
                 param_name: "amount".to_string(),
                 constraint: ConstraintType::MaxSpendLimit { max_amount: 10_000 },
-            },
-        );
+            });
         policy_tree.add_rule(rule);
 
         let circuit = WitnessSynthesizer::synthesize(&event, &policy_tree, 4, None, 3600)

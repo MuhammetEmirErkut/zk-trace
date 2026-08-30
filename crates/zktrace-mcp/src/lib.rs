@@ -15,9 +15,7 @@ pub mod proxy;
 pub mod prelude {
     pub use crate::error::{McpError, McpResult};
     pub use crate::interceptor::McpInterceptor;
-    pub use crate::protocol::{
-        JsonRpcError, JsonRpcRequest, JsonRpcResponse, McpToolCallParams,
-    };
+    pub use crate::protocol::{JsonRpcError, JsonRpcRequest, JsonRpcResponse, McpToolCallParams};
     pub use crate::proxy::{McpProxy, ProxyAction};
 }
 

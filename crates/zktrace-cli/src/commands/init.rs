@@ -21,11 +21,14 @@ pub fn execute_init(output_dir: impl AsRef<Path>, tree_depth: usize) -> Result<(
             param_name: "query_type".to_string(),
             constraint: ConstraintType::ReadOnlyOnly,
         });
-    let rule_stripe = PolicyRule::new("stripe_payment", "Stripe payment gateway")
-        .with_constraint(ParamConstraint {
+    let rule_stripe = PolicyRule::new("stripe_payment", "Stripe payment gateway").with_constraint(
+        ParamConstraint {
             param_name: "amount".to_string(),
-            constraint: ConstraintType::MaxSpendLimit { max_amount: 100_000 },
-        });
+            constraint: ConstraintType::MaxSpendLimit {
+                max_amount: 100_000,
+            },
+        },
+    );
     policy.add_rule(rule_sql);
     policy.add_rule(rule_stripe);
 
@@ -36,7 +39,10 @@ pub fn execute_init(output_dir: impl AsRef<Path>, tree_depth: usize) -> Result<(
     println!("  📄 Policy template written to {:?}", policy_path);
 
     // 2. Generate deterministic CRS proving and verifying keys
-    println!("  🔑 Generating Groth16 CRS parameters (tree depth: {})...", tree_depth);
+    println!(
+        "  🔑 Generating Groth16 CRS parameters (tree depth: {})...",
+        tree_depth
+    );
     let keys = ProverKeys::generate_deterministic(tree_depth)
         .map_err(|e| anyhow::anyhow!("Setup error: {}", e))?;
 

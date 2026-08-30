@@ -12,8 +12,7 @@ use ark_crypto_primitives::sponge::{
 use ark_ff::{Field, PrimeField};
 use sha2::{Digest, Sha256};
 
-use crate::crypto::field::{bytes_to_fr, Fr};
-use crate::error::{CoreError, CoreResult};
+use crate::crypto::field::Fr;
 
 /// Global cached configuration for 2-to-1 Poseidon permutation (t = 3, rate = 2, capacity = 1).
 static POSEIDON_CONFIG_RATE_2: OnceLock<PoseidonConfig<Fr>> = OnceLock::new();

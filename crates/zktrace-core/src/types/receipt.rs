@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::crypto::field::{deserialize_fr, fr_to_hex, serialize_fr, Fr};
+use crate::crypto::field::{deserialize_fr, serialize_fr, Fr};
 use crate::crypto::merkle::MerkleProof;
 use crate::error::{CoreError, CoreResult};
 
