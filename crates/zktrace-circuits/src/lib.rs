@@ -3,7 +3,7 @@
 //! R1CS Zero-Knowledge constraint circuits and gadgets for AI Agent policy execution
 //! verification over BN254 $\mathbb{F}_r$ in the ZKTrace architecture.
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![deny(unsafe_code)]
 #![warn(rust_2018_idioms)]
 

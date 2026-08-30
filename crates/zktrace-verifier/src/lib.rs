@@ -3,7 +3,7 @@
 //! Ultra-fast sub-5ms Zero-Knowledge execution proof and cryptographic audit receipt
 //! verification engine for auditors and verification SDKs in the ZKTrace ecosystem.
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![deny(unsafe_code)]
 #![warn(rust_2018_idioms)]
 

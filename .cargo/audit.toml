@@ -1,0 +1,6 @@
+[advisories]
+ignore = [
+    # Transitive macro crates in the Arkworks 0.4 ZK-SNARK ecosystem
+    "RUSTSEC-2024-0388", # derivative unmaintained
+    "RUSTSEC-2024-0436", # paste unmaintained
+]

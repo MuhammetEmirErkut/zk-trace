@@ -15,12 +15,11 @@ fn test_instant_verifier_valid_receipt() {
 
     // 2. Setup Policy
     let mut policy = PolicyTree::new("prod-policy", 1);
-    let rule = PolicyRule::new("query_database", "Read-only SQL").with_constraint(
-        ParamConstraint {
+    let rule =
+        PolicyRule::new("query_database", "Read-only SQL").with_constraint(ParamConstraint {
             param_name: "max_rows".to_string(),
             constraint: ConstraintType::NumericRange { min: 1, max: 1000 },
-        },
-    );
+        });
     let rule_leaf = rule.compute_leaf();
     policy.add_rule(rule);
 

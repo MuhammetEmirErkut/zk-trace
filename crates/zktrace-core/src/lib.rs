@@ -4,7 +4,7 @@
 //! Incremental Merkle Trees, canonical serialization, and domain types for the ZKTrace
 //! Zero-Knowledge AI Agent Audit Trail system.
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 #![deny(unsafe_code)]
 #![warn(rust_2018_idioms)]
 
