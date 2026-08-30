@@ -1,0 +1,40 @@
+# Local environment & private files
+*.local.md
+*.local
+.local/
+
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Secrets & Environment variables
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.crt
+
+# IDE and Editor configurations
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test & Coverage artifacts
+coverage/
+tarpaulin-report.html
+*.profraw
+*.profdata
+cobertura.xml
+
+# ZKTrace runtime artifacts and ledgers (temporary test files)
+*.zktrace
+*.ledger.db
+test-ledger/
+temp/
+scratch/
