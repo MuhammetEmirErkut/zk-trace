@@ -7,6 +7,7 @@ members = [
     "crates/zktrace-verifier",
     "crates/zktrace-ledger",
     "crates/zktrace-mcp",
+    "crates/zktrace-cli",
 ]
 
 [workspace.package]
@@ -51,6 +52,11 @@ num-traits = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.10", features = ["v4", "serde"] }
 
+# CLI and Web Framework
+clap = { version = "4.5", features = ["derive", "env"] }
+axum = "0.7"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
 # Internal workspace crates
 zktrace-core = { path = "crates/zktrace-core" }
 zktrace-circuits = { path = "crates/zktrace-circuits" }
@@ -58,6 +64,7 @@ zktrace-prover = { path = "crates/zktrace-prover" }
 zktrace-verifier = { path = "crates/zktrace-verifier" }
 zktrace-ledger = { path = "crates/zktrace-ledger" }
 zktrace-mcp = { path = "crates/zktrace-mcp" }
+zktrace-cli = { path = "crates/zktrace-cli" }
 
 [profile.release]
 opt-level = 3
