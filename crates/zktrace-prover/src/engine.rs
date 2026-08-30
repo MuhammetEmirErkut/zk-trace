@@ -79,14 +79,15 @@ impl ZKTraceProver {
 
         // 2. Generate Groth16 zero-knowledge proof
         let mut rng = OsRng;
-        let proof = Groth16::<Bn254>::prove(&self.keys.pk, circuit, &mut rng)
-            .map_err(|e| ProverError::Groth16ProvingError(format!("Proof creation failed: {}", e)))?;
+        let proof = Groth16::<Bn254>::prove(&self.keys.pk, circuit, &mut rng).map_err(|e| {
+            ProverError::Groth16ProvingError(format!("Proof creation failed: {}", e))
+        })?;
 
         // 3. Serialize proof to canonical compressed bytes
         let mut proof_bytes = Vec::new();
-        proof
-            .serialize_compressed(&mut proof_bytes)
-            .map_err(|e| ProverError::Serialization(format!("Proof serialization failed: {}", e)))?;
+        proof.serialize_compressed(&mut proof_bytes).map_err(|e| {
+            ProverError::Serialization(format!("Proof serialization failed: {}", e))
+        })?;
 
         let receipt = AuditReceipt {
             receipt_id: Uuid::new_v4(),

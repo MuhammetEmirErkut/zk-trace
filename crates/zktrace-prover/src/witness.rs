@@ -20,14 +20,12 @@ impl WitnessSynthesizer {
         timestamp_window_secs: u64,
     ) -> ProverResult<ExecutionPolicyCircuit> {
         // 1. Find matching policy rule
-        let rule = policy_tree
-            .get_rule(&event.tool_name)
-            .ok_or_else(|| {
-                ProverError::PolicyViolation(format!(
-                    "Tool '{}' is not whitelisted in policy '{}'",
-                    event.tool_name, policy_tree.policy_id
-                ))
-            })?;
+        let rule = policy_tree.get_rule(&event.tool_name).ok_or_else(|| {
+            ProverError::PolicyViolation(format!(
+                "Tool '{}' is not whitelisted in policy '{}'",
+                event.tool_name, policy_tree.policy_id
+            ))
+        })?;
 
         // 2. Build Policy Merkle Tree to obtain inclusion proof
         let mut merkle_tree = MerkleTree::new(tree_depth);

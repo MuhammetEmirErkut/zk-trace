@@ -68,12 +68,12 @@ async fn test_mcp_proxy_rejects_policy_violation() {
     let ledger = Arc::new(Mutex::new(CryptographicLedger::open_in_memory(4)));
 
     let mut policy = PolicyTree::new("mcp-policy-prod", 1);
-    let rule = PolicyRule::new("stripe_payment", "Payment tool").with_constraint(
-        ParamConstraint {
-            param_name: "amount".to_string(),
-            constraint: ConstraintType::MaxSpendLimit { max_amount: 100_000 },
+    let rule = PolicyRule::new("stripe_payment", "Payment tool").with_constraint(ParamConstraint {
+        param_name: "amount".to_string(),
+        constraint: ConstraintType::MaxSpendLimit {
+            max_amount: 100_000,
         },
-    );
+    });
     policy.add_rule(rule);
 
     let agent = AgentIdentity::new("finance-agent-01", "enterprise");
