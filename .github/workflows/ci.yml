@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read
+  checks: write
+
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: "-D warnings"
@@ -79,8 +83,16 @@ jobs:
       - name: Generate Cargo.lock
         run: cargo generate-lockfile
 
-      - name: Run Cargo Audit
-        uses: rustsec/audit-check@v2.0.0
+      - name: Cache cargo-audit binary
+        uses: actions/cache@v4
+        id: cache-cargo-audit
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          warn-on-unmaintained: false
+          path: ~/.cargo/bin/cargo-audit
+          key: ${{ runner.os }}-cargo-audit-bin-v0.22.2
+
+      - name: Install cargo-audit
+        if: steps.cache-cargo-audit.outputs.cache-hit != 'true'
+        run: cargo install cargo-audit --locked
+
+      - name: Run Cargo Audit
+        run: cargo audit
