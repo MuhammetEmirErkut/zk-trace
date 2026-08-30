@@ -4,6 +4,7 @@ members = [
     "crates/zktrace-core",
     "crates/zktrace-circuits",
     "crates/zktrace-prover",
+    "crates/zktrace-verifier",
 ]
 
 [workspace.package]
@@ -50,6 +51,7 @@ uuid = { version = "1.10", features = ["v4", "serde"] }
 zktrace-core = { path = "crates/zktrace-core" }
 zktrace-circuits = { path = "crates/zktrace-circuits" }
 zktrace-prover = { path = "crates/zktrace-prover" }
+zktrace-verifier = { path = "crates/zktrace-verifier" }
 
 [profile.release]
 opt-level = 3
