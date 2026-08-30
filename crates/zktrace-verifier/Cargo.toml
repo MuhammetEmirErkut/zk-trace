@@ -12,7 +12,7 @@ description = "High-performance instant Zero-Knowledge proof and audit receipt v
 zktrace-core = { workspace = true }
 
 ark-ff = { workspace = true, features = ["std"] }
-ark-bn254 = { workspace = true, features = ["std"] }
+ark-bn254 = { workspace = true, features = ["curve", "std"] }
 ark-groth16 = { workspace = true, features = ["std"] }
 ark-serialize = { workspace = true, features = ["std"] }
 ark-std = { workspace = true, features = ["std"] }

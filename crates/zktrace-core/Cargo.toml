@@ -10,7 +10,7 @@ description = "Core cryptographic primitives, canonical serialization, and domai
 
 [dependencies]
 ark-ff = { workspace = true, features = ["std"] }
-ark-bn254 = { workspace = true, features = ["std"] }
+ark-bn254 = { workspace = true, features = ["curve", "std"] }
 ark-crypto-primitives = { workspace = true, features = ["sponge", "r1cs", "std"] }
 ark-std = { workspace = true, features = ["std"] }
 ark-serialize = { workspace = true, features = ["std"] }
