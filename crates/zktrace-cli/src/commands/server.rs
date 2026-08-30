@@ -73,7 +73,12 @@ async fn verify_endpoint(
         let report = state
             .verifier
             .verify_receipt(&receipt, None, None)
-            .map_err(|e| (StatusCode::BAD_REQUEST, format!("Verification error: {}", e)))?;
+            .map_err(|e| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    format!("Verification error: {}", e),
+                )
+            })?;
         return Ok(Json(json!({
             "type": "single_receipt",
             "report": report
@@ -84,7 +89,12 @@ async fn verify_endpoint(
         let reports = state
             .verifier
             .verify_batch(&bundle.receipts, None, Some(&bundle.ledger_root))
-            .map_err(|e| (StatusCode::BAD_REQUEST, format!("Batch verification error: {}", e)))?;
+            .map_err(|e| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    format!("Batch verification error: {}", e),
+                )
+            })?;
         return Ok(Json(json!({
             "type": "bundle",
             "count": reports.len(),

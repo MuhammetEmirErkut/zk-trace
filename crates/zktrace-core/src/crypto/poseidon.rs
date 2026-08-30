@@ -32,18 +32,20 @@ pub fn generate_poseidon_parameters(
     alpha: u64,
 ) -> PoseidonConfig<Fr> {
     let t = rate + 1;
-    let num_constants = (full_rounds + partial_rounds) * t;
-
-    // Deterministically generate round constants using SHA-256 PRNG
-    let mut round_constants = Vec::with_capacity(num_constants);
-    for i in 0..num_constants {
-        let mut hasher = Sha256::new();
-        hasher.update(b"ZKTrace_Poseidon_BN254_RoundConstant_v1");
-        hasher.update((i as u32).to_be_bytes());
-        hasher.update((rate as u32).to_be_bytes());
-        let digest = hasher.finalize();
-        let c = Fr::from_be_bytes_mod_order(&digest);
-        round_constants.push(c);
+    let total_rounds = full_rounds + partial_rounds;
+    let mut round_constants = Vec::with_capacity(total_rounds);
+    for r in 0..total_rounds {
+        let mut round_vec = Vec::with_capacity(t);
+        for i in 0..t {
+            let mut hasher = Sha256::new();
+            hasher.update(b"ZKTrace_Poseidon_BN254_RoundConstant_v1");
+            hasher.update(((r * t + i) as u32).to_be_bytes());
+            hasher.update((rate as u32).to_be_bytes());
+            let digest = hasher.finalize();
+            let c = Fr::from_be_bytes_mod_order(&digest);
+            round_vec.push(c);
+        }
+        round_constants.push(round_vec);
     }
 
     // Deterministically generate Cauchy/Hadamard MDS matrix
@@ -101,7 +103,8 @@ pub fn poseidon_config_rate_4() -> &'static PoseidonConfig<Fr> {
 pub fn poseidon_hash_2(left: Fr, right: Fr) -> Fr {
     let config = poseidon_config_rate_2();
     let mut sponge = PoseidonSponge::new(config);
-    sponge.absorb(&[left, right]);
+    sponge.absorb(&left);
+    sponge.absorb(&right);
     sponge.squeeze_field_elements(1)[0]
 }
 
@@ -118,12 +121,16 @@ pub fn poseidon_hash_many(inputs: &[Fr]) -> Fr {
     if inputs.len() <= 2 {
         let config = poseidon_config_rate_2();
         let mut sponge = PoseidonSponge::new(config);
-        sponge.absorb(&inputs);
+        for item in inputs {
+            sponge.absorb(item);
+        }
         sponge.squeeze_field_elements(1)[0]
     } else {
         let config = poseidon_config_rate_4();
         let mut sponge = PoseidonSponge::new(config);
-        sponge.absorb(&inputs);
+        for item in inputs {
+            sponge.absorb(item);
+        }
         sponge.squeeze_field_elements(1)[0]
     }
 }

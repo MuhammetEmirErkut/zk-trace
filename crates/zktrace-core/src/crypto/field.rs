@@ -141,7 +141,6 @@ pub fn canonical_deserialize<T: CanonicalDeserialize>(bytes: &[u8]) -> CoreResul
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ark_ff::Field;
 
     #[test]
     fn test_u64_conversion() {
