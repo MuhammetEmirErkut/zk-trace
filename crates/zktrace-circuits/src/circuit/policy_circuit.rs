@@ -3,19 +3,12 @@
 //! Enforces mathematical compliance of AI agent tool execution against committed policies
 //! without revealing raw prompt queries, PII, or internal credentials.
 
-use ark_r1cs_std::{
-    alloc::AllocVar,
-    eq::EqGadget,
-    fields::fp::FpVar,
-    R1CSVar,
-};
+use ark_r1cs_std::{alloc::AllocVar, eq::EqGadget, fields::fp::FpVar};
 use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
 use zktrace_core::crypto::{Fr, MerkleProof};
 
 use crate::gadgets::{
-    merkle::MerklePathVar,
-    poseidon::{poseidon_hash_2_gadget, poseidon_hash_many_gadget},
-    range::enforce_less_than_or_equal_constant,
+    merkle::MerklePathVar, poseidon::poseidon_hash_many_gadget, range::enforce_less_than_or_equal,
 };
 
 /// The primary Zero-Knowledge Policy Execution Circuit.
@@ -34,7 +27,7 @@ pub struct ExecutionPolicyCircuit {
     pub agent_pubkey_hash: Option<Fr>,
     /// Session Identifier / Nonce.
     pub session_id: Option<Fr>,
-    /// Bounded Timestamp Window / Upper Bound.
+    /// Bounded Timestamp Window $\tau_{\text{window}}$.
     pub timestamp_window: Option<Fr>,
 
     // ==========================================
@@ -66,23 +59,23 @@ impl ConstraintSynthesizer<Fr> for ExecutionPolicyCircuit {
         // 1. Allocate Public Inputs (Order must match PublicInputs struct)
         // ====================================================================
         let policy_root_var = FpVar::new_input(cs.clone(), || {
-            self.policy_root_hash.ok_or(SynthesisError::AssignmentMissing)
+            self.policy_root_hash
+                .ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let execution_digest_var = FpVar::new_input(cs.clone(), || {
-            self.execution_digest.ok_or(SynthesisError::AssignmentMissing)
+            self.execution_digest
+                .ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let _agent_pubkey_var = FpVar::new_input(cs.clone(), || {
-            self.agent_pubkey_hash.ok_or(SynthesisError::AssignmentMissing)
+            self.agent_pubkey_hash
+                .ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let session_id_var = FpVar::new_input(cs.clone(), || {
             self.session_id.ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let timestamp_window_var = FpVar::new_input(cs.clone(), || {
-            self.timestamp_window.ok_or(SynthesisError::AssignmentMissing)
+            self.timestamp_window
+                .ok_or(SynthesisError::AssignmentMissing)
         })?;
 
         // ====================================================================
@@ -91,24 +84,20 @@ impl ConstraintSynthesizer<Fr> for ExecutionPolicyCircuit {
         let tool_id_var = FpVar::new_witness(cs.clone(), || {
             self.tool_id_hash.ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let param_digest_var = FpVar::new_witness(cs.clone(), || {
             self.param_digest.ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let rule_leaf_var = FpVar::new_witness(cs.clone(), || {
             self.rule_leaf.ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let result_code_var = FpVar::new_witness(cs.clone(), || {
             self.result_code
-                .map(|rc| Fr::from(rc as u64))
+                .map(|r| Fr::from(r as u64))
                 .ok_or(SynthesisError::AssignmentMissing)
         })?;
-
         let timestamp_var = FpVar::new_witness(cs.clone(), || {
             self.timestamp
-                .map(|ts| Fr::from(ts as u64))
+                .map(|t| Fr::from(t as u64))
                 .ok_or(SynthesisError::AssignmentMissing)
         })?;
 
@@ -123,15 +112,15 @@ impl ConstraintSynthesizer<Fr> for ExecutionPolicyCircuit {
         // ====================================================================
         // 4. Enforce Numerical Parameter Range Bounds ($0 \le \text{val} \le \text{bound}$)
         // ====================================================================
-        if let (Some(val), Some(bound)) = (self.param_value, self.param_max_bound) {
-            let param_val_var = FpVar::new_witness(cs.clone(), || Ok(Fr::from(val)))?;
-            enforce_less_than_or_equal_constant(cs.clone(), &param_val_var, bound, 64)?;
-        }
+        let max_bound = self.param_max_bound.unwrap_or(u64::MAX);
+        let param_val = self.param_value.unwrap_or(0);
+        let param_val_var = FpVar::new_witness(cs.clone(), || Ok(Fr::from(param_val)))?;
+        let max_bound_var = FpVar::new_witness(cs.clone(), || Ok(Fr::from(max_bound)))?;
+        enforce_less_than_or_equal(cs.clone(), &param_val_var, &max_bound_var, 64)?;
 
         // ====================================================================
-        // 5. Enforce Execution Digest Integrity
-        //
-        // $D = \text{Poseidon}(\text{ToolID}, \text{ParamDigest}, \text{ResultCode}, \text{Timestamp}, \text{SessionID})$
+        // 5. Enforce Cryptographic Digest Integrity
+        //    $D = \text{Poseidon}(\text{ToolID}, \text{ParamDigest}, \text{ResultCode}, \text{Timestamp}, \text{SessionID})$
         // ====================================================================
         let computed_digest_var = poseidon_hash_many_gadget(
             cs.clone(),
@@ -149,14 +138,7 @@ impl ConstraintSynthesizer<Fr> for ExecutionPolicyCircuit {
         // ====================================================================
         // 6. Enforce Timestamp Window Bound ($\text{timestamp} \le \text{timestamp\_window}$)
         // ====================================================================
-        if let (Some(ts), Some(_ts_win)) = (self.timestamp, self.timestamp_window) {
-            let ts_u64 = ts as u64;
-            let window_val = timestamp_window_var.value().unwrap_or(Fr::from(0u64));
-            let window_u64 = window_val.into_bigint().0[0];
-            if window_u64 >= ts_u64 {
-                enforce_less_than_or_equal_constant(cs.clone(), &timestamp_var, window_u64, 64)?;
-            }
-        }
+        enforce_less_than_or_equal(cs.clone(), &timestamp_var, &timestamp_window_var, 64)?;
 
         Ok(())
     }
@@ -175,12 +157,13 @@ mod tests {
 
         // 1. Setup policy tree
         let mut policy_tree = PolicyTree::new("test-policy", 1);
-        let rule = PolicyRule::new("stripe_payment", "Payment tool").with_constraint(
-            ParamConstraint {
+        let rule =
+            PolicyRule::new("stripe_payment", "Payment tool").with_constraint(ParamConstraint {
                 param_name: "amount".to_string(),
-                constraint: ConstraintType::MaxSpendLimit { max_amount: 100_000 },
-            },
-        );
+                constraint: ConstraintType::MaxSpendLimit {
+                    max_amount: 100_000,
+                },
+            });
         let rule_leaf = rule.compute_leaf();
         policy_tree.add_rule(rule);
 
@@ -223,7 +206,10 @@ mod tests {
         };
 
         circuit.generate_constraints(cs.clone()).unwrap();
-        assert!(cs.is_satisfied().unwrap(), "Circuit must be satisfied for valid witness");
+        assert!(
+            cs.is_satisfied().unwrap(),
+            "Circuit must be satisfied for valid witness"
+        );
     }
 
     #[test]
@@ -265,7 +251,10 @@ mod tests {
         // Generating constraints should either return synthesis error or produce an unsatisfied constraint system
         let res = circuit.generate_constraints(cs.clone());
         if res.is_ok() {
-            assert!(!cs.is_satisfied().unwrap(), "Circuit MUST fail when param exceeds max bound");
+            assert!(
+                !cs.is_satisfied().unwrap(),
+                "Circuit MUST fail when param exceeds max bound"
+            );
         }
     }
 }

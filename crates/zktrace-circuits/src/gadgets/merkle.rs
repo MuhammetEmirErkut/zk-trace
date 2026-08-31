@@ -1,14 +1,8 @@
 //! Merkle authentication path verification gadget inside R1CS.
 
-use ark_r1cs_std::{
-    alloc::AllocVar,
-    boolean::Boolean,
-    eq::EqGadget,
-    fields::fp::FpVar,
-    R1CSVar,
-};
+use ark_r1cs_std::{alloc::AllocVar, boolean::Boolean, eq::EqGadget, fields::fp::FpVar};
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};
-use zktrace_core::crypto::{Fr, MerkleProof, MerkleProofStep};
+use zktrace_core::crypto::{Fr, MerkleProof};
 
 use crate::gadgets::poseidon::poseidon_hash_2_gadget;
 

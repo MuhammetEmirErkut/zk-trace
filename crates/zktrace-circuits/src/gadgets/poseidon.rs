@@ -1,8 +1,7 @@
 //! Poseidon hashing gadgets inside R1CS constraint systems.
 
 use ark_crypto_primitives::sponge::{
-    constraints::CryptographicSpongeVar,
-    poseidon::constraints::PoseidonSpongeVar,
+    constraints::CryptographicSpongeVar, poseidon::constraints::PoseidonSpongeVar,
 };
 use ark_r1cs_std::fields::fp::FpVar;
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};
@@ -16,7 +15,7 @@ pub fn poseidon_hash_2_gadget(
 ) -> Result<FpVar<Fr>, SynthesisError> {
     let config = poseidon_config_rate_2();
     let mut sponge_var = PoseidonSpongeVar::new(cs, config);
-    sponge_var.absorb(&[left.clone(), right.clone()])?;
+    sponge_var.absorb(&(&[left.clone(), right.clone()][..]))?;
     let squeezed = sponge_var.squeeze_field_elements(1)?;
     Ok(squeezed[0].clone())
 }
@@ -28,7 +27,7 @@ pub fn poseidon_hash_1_gadget(
 ) -> Result<FpVar<Fr>, SynthesisError> {
     let config = poseidon_config_rate_2();
     let mut sponge_var = PoseidonSpongeVar::new(cs, config);
-    sponge_var.absorb(&[input.clone()])?;
+    sponge_var.absorb(&(&[input.clone()][..]))?;
     let squeezed = sponge_var.squeeze_field_elements(1)?;
     Ok(squeezed[0].clone())
 }
@@ -41,13 +40,13 @@ pub fn poseidon_hash_many_gadget(
     if inputs.len() <= 2 {
         let config = poseidon_config_rate_2();
         let mut sponge_var = PoseidonSpongeVar::new(cs, config);
-        sponge_var.absorb(&inputs.to_vec())?;
+        sponge_var.absorb(&inputs)?;
         let squeezed = sponge_var.squeeze_field_elements(1)?;
         Ok(squeezed[0].clone())
     } else {
         let config = poseidon_config_rate_4();
         let mut sponge_var = PoseidonSpongeVar::new(cs, config);
-        sponge_var.absorb(&inputs.to_vec())?;
+        sponge_var.absorb(&inputs)?;
         let squeezed = sponge_var.squeeze_field_elements(1)?;
         Ok(squeezed[0].clone())
     }

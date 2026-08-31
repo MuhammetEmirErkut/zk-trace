@@ -1,12 +1,8 @@
 //! R1CS gadgets for numerical bounds, range checks, and parameter inequalities.
 
-use ark_ff::PrimeField;
+use ark_ff::{Field, PrimeField};
 use ark_r1cs_std::{
-    alloc::AllocVar,
-    boolean::Boolean,
-    eq::EqGadget,
-    fields::fp::FpVar,
-    R1CSVar,
+    alloc::AllocVar, boolean::Boolean, eq::EqGadget, fields::fp::FpVar, R1CSVar, ToBitsGadget,
 };
 use ark_relations::r1cs::{ConstraintSystemRef, SynthesisError};
 use zktrace_core::crypto::Fr;
@@ -15,13 +11,16 @@ use zktrace_core::crypto::Fr;
 ///
 /// Uses binary bit decomposition on both $x$ and $(\text{upper\_bound} - x)$ up to `num_bits`
 /// (typically 64 bits for standard integers/budgets), mathematically preventing field overflow.
-pub fn enforce_less_than_or_equal_constant(
+pub fn enforce_less_than_or_equal(
     cs: ConstraintSystemRef<Fr>,
     val: &FpVar<Fr>,
-    upper_bound: u64,
+    upper_bound: &FpVar<Fr>,
     num_bits: usize,
 ) -> Result<(), SynthesisError> {
-    assert!(num_bits <= 64, "Bit length must be <= 64 to avoid field overflow");
+    assert!(
+        num_bits <= 64,
+        "Bit length must be <= 64 to avoid field overflow"
+    );
 
     // 1. Bit-decompose val to ensure val >= 0 and val < 2^num_bits
     let val_bits = val.to_bits_le()?;
@@ -32,8 +31,7 @@ pub fn enforce_less_than_or_equal_constant(
     }
 
     // 2. Compute difference diff = upper_bound - val
-    let bound_var = FpVar::Constant(Fr::from(upper_bound));
-    let diff = &bound_var - val;
+    let diff = upper_bound - val;
 
     // 3. Allocate diff as witness bits and ensure sum of bits == diff
     let diff_val = diff.value().unwrap_or(Fr::from(0u64));
@@ -58,6 +56,17 @@ pub fn enforce_less_than_or_equal_constant(
     diff.enforce_equal(&reconstructed)?;
 
     Ok(())
+}
+
+/// Enforces that a field element variable `val` satisfies $0 \le \text{val} \le \text{upper\_bound}$ using constant bound.
+pub fn enforce_less_than_or_equal_constant(
+    cs: ConstraintSystemRef<Fr>,
+    val: &FpVar<Fr>,
+    upper_bound: u64,
+    num_bits: usize,
+) -> Result<(), SynthesisError> {
+    let bound_var = FpVar::new_witness(cs.clone(), || Ok(Fr::from(upper_bound)))?;
+    enforce_less_than_or_equal(cs, val, &bound_var, num_bits)
 }
 
 /// Enforces that a field element variable `val` satisfies $\text{min} \le \text{val} \le \text{max}$.

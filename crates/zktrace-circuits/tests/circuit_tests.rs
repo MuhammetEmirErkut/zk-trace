@@ -11,18 +11,25 @@ fn test_end_to_end_circuit_valid_execution() {
 
     // 1. Setup policy tree with two rules
     let mut policy_tree = PolicyTree::new("enterprise-banking-policy", 1);
-    let rule_payment = PolicyRule::new("bank_wire_transfer", "Wire transfer tool")
-        .with_constraint(ParamConstraint {
+    let rule_payment = PolicyRule::new("bank_wire_transfer", "Wire transfer tool").with_constraint(
+        ParamConstraint {
             param_name: "amount".to_string(),
-            constraint: ConstraintType::MaxSpendLimit { max_amount: 500_000 },
-        });
+            constraint: ConstraintType::MaxSpendLimit {
+                max_amount: 500_000,
+            },
+        },
+    );
     let rule_leaf = rule_payment.compute_leaf();
     policy_tree.add_rule(rule_payment);
 
     let mut merkle_tree = MerkleTree::new(4);
-    merkle_tree.insert(rule_leaf).expect("Merkle insert must succeed");
+    merkle_tree
+        .insert(rule_leaf)
+        .expect("Merkle insert must succeed");
     let policy_root = merkle_tree.root();
-    let policy_proof = merkle_tree.generate_proof(0).expect("Proof generation must succeed");
+    let policy_proof = merkle_tree
+        .generate_proof(0)
+        .expect("Proof generation must succeed");
 
     // 2. Setup execution context
     let tool_name = "bank_wire_transfer";
