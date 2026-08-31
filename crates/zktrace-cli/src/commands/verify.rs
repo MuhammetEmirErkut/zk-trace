@@ -1,9 +1,9 @@
 //! `zktrace verify` command implementation.
 
+use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use anyhow::{Context, Result};
 use zktrace_core::crypto::field::hex_to_fr;
 use zktrace_core::types::receipt::AuditReceipt;
 use zktrace_ledger::bundle::AuditBundle;
@@ -18,8 +18,7 @@ pub fn execute_verify(
     expected_policy_root: Option<&str>,
 ) -> Result<()> {
     let path = receipt_path.as_ref();
-    let mut file =
-        File::open(path).with_context(|| format!("Failed to open file {:?}", path))?;
+    let mut file = File::open(path).with_context(|| format!("Failed to open file {:?}", path))?;
     let mut content = String::new();
     file.read_to_string(&mut content)?;
 

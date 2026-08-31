@@ -1,10 +1,10 @@
 //! `zktrace proxy` command implementation.
 
+use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::{self, BufRead, Read, Write};
 use std::path::Path;
 use std::sync::Arc;
-use anyhow::{Context, Result};
 use tokio::sync::Mutex;
 use zktrace_core::crypto::Fr;
 use zktrace_core::types::execution::AgentIdentity;
@@ -24,12 +24,12 @@ pub async fn execute_proxy(
 ) -> Result<()> {
     // 1. Load policy
     let p_path = policy_path.as_ref();
-    let mut p_file = File::open(p_path)
-        .with_context(|| format!("Failed to open policy file {:?}", p_path))?;
+    let mut p_file =
+        File::open(p_path).with_context(|| format!("Failed to open policy file {:?}", p_path))?;
     let mut p_content = String::new();
     p_file.read_to_string(&mut p_content)?;
-    let policy: PolicyTree = serde_json::from_str(&p_content)
-        .with_context(|| "Failed to parse policy JSON")?;
+    let policy: PolicyTree =
+        serde_json::from_str(&p_content).with_context(|| "Failed to parse policy JSON")?;
 
     // 2. Open Ledger and Prover
     let ledger = Arc::new(Mutex::new(
@@ -92,13 +92,4 @@ pub async fn execute_proxy(
     }
 
     Ok(())
-}
-
-impl Clone for McpProxy<zktrace_ledger::store::DiskStore> {
-    fn clone(&self) -> Self {
-        Self {
-            interceptor: self.interceptor.clone(),
-            session_id: self.session_id,
-        }
-    }
 }

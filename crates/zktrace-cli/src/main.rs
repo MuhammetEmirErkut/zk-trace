@@ -2,8 +2,8 @@
 //!
 //! Enterprise Zero-Knowledge Cryptographic Audit Trail for AI Agents.
 
-use std::path::PathBuf;
 use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 mod commands;
 
@@ -88,7 +88,10 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Init { out_dir, tree_depth } => {
+        Commands::Init {
+            out_dir,
+            tree_depth,
+        } => {
             commands::init::execute_init(out_dir, tree_depth)?;
         }
         Commands::Verify {

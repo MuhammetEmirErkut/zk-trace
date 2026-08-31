@@ -1,10 +1,5 @@
 //! `zktrace serve` high-throughput HTTP REST API verifier server.
 
-use std::fs::File;
-use std::io::Read;
-use std::net::SocketAddr;
-use std::path::Path;
-use std::sync::Arc;
 use anyhow::{Context, Result};
 use axum::{
     extract::State,
@@ -14,6 +9,11 @@ use axum::{
     Json, Router,
 };
 use serde_json::{json, Value};
+use std::fs::File;
+use std::io::Read;
+use std::net::SocketAddr;
+use std::path::Path;
+use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use zktrace_core::types::receipt::AuditReceipt;
 use zktrace_ledger::bundle::AuditBundle;
@@ -48,7 +48,10 @@ pub async fn execute_server(port: u16, vk_path: Option<&Path>) -> Result<()> {
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    println!("🚀 ZKTrace REST API Verifier Server listening on http://{}", addr);
+    println!(
+        "🚀 ZKTrace REST API Verifier Server listening on http://{}",
+        addr
+    );
     println!("   Endpoints:");
     println!("     GET  /health");
     println!("     POST /v1/verify (Audits single receipt or .zktrace bundle)");

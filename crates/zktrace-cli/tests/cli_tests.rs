@@ -3,8 +3,7 @@
 use tempfile::tempdir;
 use zktrace_core::crypto::Fr;
 use zktrace_core::types::execution::{AgentIdentity, ExecutionEvent, ExecutionStatus};
-use zktrace_core::types::policy::{ConstraintType, ParamConstraint, PolicyRule, PolicyTree};
-use zktrace_ledger::ledger::CryptographicLedger;
+use zktrace_core::types::policy::{PolicyRule, PolicyTree};
 use zktrace_prover::prelude::*;
 
 #[test]
@@ -14,7 +13,15 @@ fn test_cli_init_generates_all_artifacts() {
 
     // Call init logic
     let res = std::process::Command::new("cargo")
-        .args(&["run", "-p", "zktrace-cli", "--", "init", "--out-dir", out_dir.to_str().unwrap()])
+        .args([
+            "run",
+            "-p",
+            "zktrace-cli",
+            "--",
+            "init",
+            "--out-dir",
+            out_dir.to_str().unwrap(),
+        ])
         .output();
 
     // If cargo is not in path in test env, test directly via internal module

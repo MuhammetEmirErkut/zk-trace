@@ -1,9 +1,9 @@
 //! `zktrace init` command implementation.
 
+use anyhow::{Context, Result};
 use std::fs::{create_dir_all, File};
 use std::io::Write;
 use std::path::Path;
-use anyhow::{Context, Result};
 use zktrace_core::types::policy::{ConstraintType, ParamConstraint, PolicyRule, PolicyTree};
 use zktrace_prover::setup::ProverKeys;
 
@@ -16,11 +16,12 @@ pub fn execute_init(output_dir: impl AsRef<Path>, tree_depth: usize) -> Result<(
 
     // 1. Generate sample policy
     let mut policy = PolicyTree::new("enterprise-default-policy", 1);
-    let rule_sql = PolicyRule::new("postgres_query", "Read-only database queries")
-        .with_constraint(ParamConstraint {
+    let rule_sql = PolicyRule::new("postgres_query", "Read-only database queries").with_constraint(
+        ParamConstraint {
             param_name: "query_type".to_string(),
             constraint: ConstraintType::ReadOnlyOnly,
-        });
+        },
+    );
     let rule_stripe = PolicyRule::new("stripe_payment", "Stripe payment gateway").with_constraint(
         ParamConstraint {
             param_name: "amount".to_string(),
@@ -63,6 +64,8 @@ pub fn execute_init(output_dir: impl AsRef<Path>, tree_depth: usize) -> Result<(
     create_dir_all(&ledger_dir)?;
     println!("  📦 Append-only Ledger initialized at {:?}", ledger_dir);
 
-    println!("\n✅ ZKTrace successfully initialized! Ready to proxy or verify AI agent executions.");
+    println!(
+        "\n✅ ZKTrace successfully initialized! Ready to proxy or verify AI agent executions."
+    );
     Ok(())
 }
