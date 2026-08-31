@@ -3,7 +3,7 @@ name: ZKTrace Automated Multi-Platform Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
 
 permissions:
   contents: write
