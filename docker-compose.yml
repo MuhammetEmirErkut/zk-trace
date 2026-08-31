@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  # ZKTrace High-Throughput REST Verification Server
+  zktrace-verifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zktrace-verifier
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - zktrace-data:/data
+    environment:
+      - RUST_LOG=info
+      - ZKTRACE_DATA_DIR=/data
+    command: ["serve", "--port", "8080"]
+
+volumes:
+  zktrace-data:
+    driver: local

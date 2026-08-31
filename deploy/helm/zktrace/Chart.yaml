@@ -1,0 +1,15 @@
+apiVersion: v2
+name: zktrace
+description: Enterprise Helm chart for ZKTrace Zero-Knowledge Audit Trail & Verifier Service
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - zero-knowledge
+  - mcp
+  - ai-agents
+  - audit-trail
+  - cryptography
+maintainers:
+  - name: ZKTrace Maintainers
+    email: maintainers@zktrace.io
