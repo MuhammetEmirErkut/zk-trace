@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------------------
 # Build Stage: Compile ZKTrace statically with Rust Stable
 # ------------------------------------------------------------------------------
-FROM rust:1.80-bullseye AS builder
+FROM rust:latest AS builder
 
 WORKDIR /build
 
