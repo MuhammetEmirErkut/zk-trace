@@ -8,10 +8,10 @@ The ZKTrace team takes the security and integrity of our cryptographic audit tra
 
 Security updates and patches are actively maintained for the following versions:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
-| < 0.1.0 | :x:                |
+| Version       | Supported          |
+| ------------- | ------------------ |
+| 0.1.0-alpha   | :white_check_mark: |
+| < 0.1.0-alpha | :x:                |
 
 ---
 
