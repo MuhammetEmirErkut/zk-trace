@@ -10,32 +10,41 @@ permissions:
   packages: write
 
 jobs:
-  build-and-release:
-    name: Build Multi-Arch Binaries & Publish Docker Images
-    runs-on: ubuntu-latest
+  build-and-release-binaries:
+    name: Build Multi-Platform Release Binaries
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - aarch64-unknown-linux-gnu
-          - x86_64-apple-darwin
-          - aarch64-apple-darwin
-          - x86_64-pc-windows-msvc
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: zktrace-linux-amd64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: zktrace-macos-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: zktrace-windows-amd64.exe
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Install Rust Stable Toolchain
+      - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Build Target Binary
+      - name: Build Binary
         run: cargo build --release --bin zktrace
 
-  docker-publish:
-    name: Publish Multi-Arch Docker Image to GHCR
-    needs: build-and-release
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: target/release/zktrace*
+
+  publish-docker:
+    name: Publish Multi-Arch Image to Docker Hub & GHCR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
@@ -47,24 +56,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
+      - name: Log in to Docker Hub (if secrets provided)
+        if: env.DOCKERHUB_USERNAME != ''
+        uses: docker/login-action@v3
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: |
+            ghcr.io/${{ github.repository }}
+            ${{ secrets.DOCKERHUB_USERNAME != '' && format('{0}/zktrace', secrets.DOCKERHUB_USERNAME) || '' }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Multi-Arch Image (amd64 & arm64)
         uses: docker/build-push-action@v5
         with:
           context: .

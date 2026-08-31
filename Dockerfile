@@ -2,7 +2,7 @@
 # ------------------------------------------------------------------------------
 # Build Stage: Compile ZKTrace statically with Rust Stable
 # ------------------------------------------------------------------------------
-FROM rust:1.80-bullseye AS builder
+FROM rust:latest AS builder
 
 WORKDIR /build
 
@@ -19,8 +19,10 @@ COPY crates/zktrace-cli/Cargo.toml crates/zktrace-cli/
 # Copy all source files
 COPY crates crates/
 
-# Build optimized release binary
-RUN cargo build --release --bin zktrace && \
+# Build optimized release binary with cargo layer caching
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    cargo build --release --bin zktrace && \
     strip target/release/zktrace
 
 # ------------------------------------------------------------------------------

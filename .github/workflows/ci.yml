@@ -27,9 +27,6 @@ jobs:
         with:
           components: rustfmt, clippy
 
-      - name: Generate Cargo.lock
-        run: cargo generate-lockfile
-
       - name: Cache Cargo Dependencies
         uses: actions/cache@v4
         with:
@@ -45,7 +42,7 @@ jobs:
       - name: Run Clippy Linter
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-  test-and-coverage:
+  test-suite:
     name: Test Suite & Zero-Knowledge Verification
     runs-on: ubuntu-latest
     steps:
@@ -54,9 +51,6 @@ jobs:
 
       - name: Install Rust Stable Toolchain
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Generate Cargo.lock
-        run: cargo generate-lockfile
 
       - name: Cache Cargo Dependencies
         uses: actions/cache@v4
@@ -70,6 +64,53 @@ jobs:
       - name: Run Workspace Tests
         run: cargo test --workspace --all-features --verbose
 
+  multiplatform-build:
+    name: Multi-Platform Build Verification
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: Linux (x86_64)
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: macOS Apple Silicon (ARM64)
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: Windows (x86_64)
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build Binary (${{ matrix.name }})
+        run: cargo build --release --bin zktrace
+
+  docker-verification:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Validate Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: zktrace:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   security-audit:
     name: Dependency Security Audit
     runs-on: ubuntu-latest
@@ -79,9 +120,6 @@ jobs:
 
       - name: Install Rust Stable Toolchain
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Generate Cargo.lock
-        run: cargo generate-lockfile
 
       - name: Cache cargo-audit binary
         uses: actions/cache@v4
