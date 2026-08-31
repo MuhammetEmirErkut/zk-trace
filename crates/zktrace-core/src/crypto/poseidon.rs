@@ -4,13 +4,13 @@
 //! representation inside zero-knowledge circuits (requiring ~200 constraints per 2-to-1 hash
 //! compared to ~25,000 constraints for SHA-256).
 
-use std::sync::OnceLock;
 use ark_crypto_primitives::sponge::{
     poseidon::{PoseidonConfig, PoseidonSponge},
     CryptographicSponge,
 };
 use ark_ff::{Field, PrimeField};
 use sha2::{Digest, Sha256};
+use std::sync::OnceLock;
 
 use crate::crypto::field::Fr;
 

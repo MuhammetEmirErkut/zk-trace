@@ -140,7 +140,7 @@ impl MerkleTree {
         let mut level_depth = 0;
 
         while level_depth < self.depth {
-            let mut next_level = Vec::with_capacity((current_level.len() + 1) / 2);
+            let mut next_level = Vec::with_capacity(current_level.len().div_ceil(2));
             for chunk in current_level.chunks(2) {
                 let left = chunk[0];
                 let right = if chunk.len() > 1 {
@@ -187,7 +187,7 @@ impl MerkleTree {
             });
 
             // Compute parent level
-            let mut next_level = Vec::with_capacity((current_level.len() + 1) / 2);
+            let mut next_level = Vec::with_capacity(current_level.len().div_ceil(2));
             for chunk in current_level.chunks(2) {
                 let left = chunk[0];
                 let right = if chunk.len() > 1 {
@@ -230,7 +230,9 @@ mod tests {
         assert_eq!(idx, 0);
         assert_eq!(root, tree.root());
 
-        let proof = tree.generate_proof(0).expect("Proof generation should succeed");
+        let proof = tree
+            .generate_proof(0)
+            .expect("Proof generation should succeed");
         assert!(proof.verify(&leaf));
 
         let fake_leaf = Fr::from(9999u64);
@@ -252,7 +254,11 @@ mod tests {
         for (i, leaf) in inserted_leaves.iter().enumerate() {
             let proof = tree.generate_proof(i).expect("Proof must generate");
             assert_eq!(proof.expected_root, root);
-            assert!(proof.verify(leaf), "Inclusion proof must verify for leaf {}", i);
+            assert!(
+                proof.verify(leaf),
+                "Inclusion proof must verify for leaf {}",
+                i
+            );
         }
     }
 
@@ -264,7 +270,8 @@ mod tests {
 
         let proof = tree.generate_proof(0).unwrap();
         let json = serde_json::to_string(&proof).expect("Proof serialization failed");
-        let deserialized: MerkleProof = serde_json::from_str(&json).expect("Deserialization failed");
+        let deserialized: MerkleProof =
+            serde_json::from_str(&json).expect("Deserialization failed");
 
         assert_eq!(proof, deserialized);
         assert!(deserialized.verify(&leaf));

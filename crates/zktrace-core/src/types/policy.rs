@@ -164,7 +164,9 @@ mod tests {
         tree.add_rule(rule1);
         tree.add_rule(rule2);
 
-        let root = tree.compute_policy_root(4).expect("Root computation must succeed");
+        let root = tree
+            .compute_policy_root(4)
+            .expect("Root computation must succeed");
         assert_ne!(root, Fr::from(0u64));
     }
 }

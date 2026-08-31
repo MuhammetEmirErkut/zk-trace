@@ -4,7 +4,7 @@ use ark_bn254::Fr as ArkFr;
 use ark_ff::{BigInteger, PrimeField};
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
 use num_bigint::BigUint;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serializer};
 use sha2::{Digest, Sha256};
 
 use crate::error::{CoreError, CoreResult};
@@ -54,9 +54,8 @@ pub fn fr_to_hex(fr: &Fr) -> String {
 /// Parses a hexadecimal string (with or without `0x` prefix) into an `Fr` element.
 pub fn hex_to_fr(hex_str: &str) -> CoreResult<Fr> {
     let clean = hex_str.trim().strip_prefix("0x").unwrap_or(hex_str.trim());
-    let bytes = hex::decode(clean).map_err(|e| {
-        CoreError::FieldError(format!("Invalid hex string '{}': {}", hex_str, e))
-    })?;
+    let bytes = hex::decode(clean)
+        .map_err(|e| CoreError::FieldError(format!("Invalid hex string '{}': {}", hex_str, e)))?;
 
     if bytes.len() > 32 {
         return Err(CoreError::FieldError(format!(
@@ -82,6 +81,11 @@ pub fn biguint_to_fr(big: &BigUint) -> Fr {
 pub fn fr_to_biguint(fr: &Fr) -> BigUint {
     let bytes = fr_to_be_bytes(fr);
     BigUint::from_bytes_be(&bytes)
+}
+
+/// Converts an `Fr` element into a `u64` representing its lowest 64 bits.
+pub fn fr_to_u64(fr: &Fr) -> u64 {
+    fr.into_bigint().0[0]
 }
 
 /// Custom Serde serializer for `Fr` field elements as `0x`-prefixed hex strings.
@@ -127,20 +131,23 @@ where
 /// Serializes any canonical Arkworks serializable object into bytes.
 pub fn canonical_serialize<T: CanonicalSerialize>(item: &T) -> CoreResult<Vec<u8>> {
     let mut bytes = Vec::new();
-    item.serialize_compressed(&mut bytes)
-        .map_err(|e| CoreError::SerializationError(format!("Canonical serialization failed: {}", e)))?;
+    item.serialize_compressed(&mut bytes).map_err(|e| {
+        CoreError::SerializationError(format!("Canonical serialization failed: {}", e))
+    })?;
     Ok(bytes)
 }
 
 /// Deserializes any canonical Arkworks serializable object from bytes.
 pub fn canonical_deserialize<T: CanonicalDeserialize>(bytes: &[u8]) -> CoreResult<T> {
-    T::deserialize_compressed(bytes)
-        .map_err(|e| CoreError::SerializationError(format!("Canonical deserialization failed: {}", e)))
+    T::deserialize_compressed(bytes).map_err(|e| {
+        CoreError::SerializationError(format!("Canonical deserialization failed: {}", e))
+    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde::Serialize;
 
     #[test]
     fn test_u64_conversion() {
@@ -194,7 +201,8 @@ mod tests {
         let json = serde_json::to_string(&obj).expect("Serialization to JSON should succeed");
         assert!(json.contains("0x"));
 
-        let deserialized: TestStruct = serde_json::from_str(&json).expect("Deserialization should succeed");
+        let deserialized: TestStruct =
+            serde_json::from_str(&json).expect("Deserialization should succeed");
         assert_eq!(obj, deserialized);
     }
 

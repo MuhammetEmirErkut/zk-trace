@@ -83,7 +83,7 @@ impl ExecutionDigest {
 }
 
 /// A complete logged execution event ready for zero-knowledge witness generation.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExecutionEvent {
     /// Unique execution event UUID.
     pub event_id: Uuid,
@@ -161,7 +161,8 @@ mod tests {
         let agent = AgentIdentity::new("agent_alpha_01", "enterprise_corp");
         let session_id = Fr::from(1001u64);
         let raw_json = br#"{"query":"SELECT id FROM payments WHERE amount < 500"}"#;
-        let masked = serde_json::json!({"query": "SELECT id FROM payments WHERE amount < [MASKED]"});
+        let masked =
+            serde_json::json!({"query": "SELECT id FROM payments WHERE amount < [MASKED]"});
 
         let event = ExecutionEvent::new(
             agent,

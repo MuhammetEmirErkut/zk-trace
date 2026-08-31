@@ -29,9 +29,8 @@ impl ProofBytes {
             .trim()
             .strip_prefix("0x")
             .unwrap_or(self.proof_hex.trim());
-        hex::decode(clean).map_err(|e| {
-            CoreError::SerializationError(format!("Invalid proof hex string: {}", e))
-        })
+        hex::decode(clean)
+            .map_err(|e| CoreError::SerializationError(format!("Invalid proof hex string: {}", e)))
     }
 }
 
@@ -93,26 +92,30 @@ pub struct AuditReceipt {
 impl AuditReceipt {
     /// Serializes the audit receipt into a formatted JSON string.
     pub fn to_json(&self) -> CoreResult<String> {
-        serde_json::to_string_pretty(self)
-            .map_err(|e| CoreError::SerializationError(format!("Failed to serialize receipt to JSON: {}", e)))
+        serde_json::to_string_pretty(self).map_err(|e| {
+            CoreError::SerializationError(format!("Failed to serialize receipt to JSON: {}", e))
+        })
     }
 
     /// Deserializes an audit receipt from a JSON string.
     pub fn from_json(json_str: &str) -> CoreResult<Self> {
-        serde_json::from_str(json_str)
-            .map_err(|e| CoreError::SerializationError(format!("Failed to parse receipt from JSON: {}", e)))
+        serde_json::from_str(json_str).map_err(|e| {
+            CoreError::SerializationError(format!("Failed to parse receipt from JSON: {}", e))
+        })
     }
 
     /// Serializes the audit receipt into compact binary format.
     pub fn to_binary(&self) -> CoreResult<Vec<u8>> {
-        bincode::serialize(self)
-            .map_err(|e| CoreError::SerializationError(format!("Failed to binary serialize receipt: {}", e)))
+        bincode::serialize(self).map_err(|e| {
+            CoreError::SerializationError(format!("Failed to binary serialize receipt: {}", e))
+        })
     }
 
     /// Deserializes an audit receipt from compact binary bytes.
     pub fn from_binary(bytes: &[u8]) -> CoreResult<Self> {
-        bincode::deserialize(bytes)
-            .map_err(|e| CoreError::SerializationError(format!("Failed to binary deserialize receipt: {}", e)))
+        bincode::deserialize(bytes).map_err(|e| {
+            CoreError::SerializationError(format!("Failed to binary deserialize receipt: {}", e))
+        })
     }
 }
 
