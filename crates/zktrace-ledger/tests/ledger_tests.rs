@@ -15,8 +15,8 @@ fn test_disk_store_persistence_and_reload() {
 
     // 1. Open disk ledger and append event
     {
-        let mut ledger = CryptographicLedger::open_disk(&store_path, 4)
-            .expect("Failed to open disk ledger");
+        let mut ledger =
+            CryptographicLedger::open_disk(&store_path, 4).expect("Failed to open disk ledger");
 
         let agent = AgentIdentity::new("disk-agent", "corp");
         let event = ExecutionEvent::new(
@@ -41,8 +41,8 @@ fn test_disk_store_persistence_and_reload() {
 
     // 2. Re-open disk ledger and ensure state was preserved
     {
-        let ledger = CryptographicLedger::open_disk(&store_path, 4)
-            .expect("Failed to reload disk ledger");
+        let ledger =
+            CryptographicLedger::open_disk(&store_path, 4).expect("Failed to reload disk ledger");
 
         assert_eq!(ledger.count(), 1);
         assert_eq!(ledger.get_root(), root_initial);
@@ -53,7 +53,9 @@ fn test_disk_store_persistence_and_reload() {
             .expect("Event must exist");
         assert_eq!(retrieved_event.tool_name, "disk_tool");
 
-        let proof = ledger.get_inclusion_proof(0).expect("Proof generation failed");
+        let proof = ledger
+            .get_inclusion_proof(0)
+            .expect("Proof generation failed");
         assert!(proof.verify(&retrieved_event.compute_ledger_leaf()));
     }
 }
@@ -82,7 +84,9 @@ fn test_bundle_export_and_import() {
     let parsed_bundle = AuditBundle::from_json(&bundle_json).expect("JSON parse failed");
 
     let mut ledger2 = CryptographicLedger::open_in_memory(4);
-    let imported_count = ledger2.import_bundle(&parsed_bundle).expect("Import failed");
+    let imported_count = ledger2
+        .import_bundle(&parsed_bundle)
+        .expect("Import failed");
     assert_eq!(imported_count, 5);
     assert_eq!(ledger1.get_root(), ledger2.get_root());
 }

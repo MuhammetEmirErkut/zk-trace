@@ -63,7 +63,9 @@ impl LedgerStorage for MemoryStore {
         } else if index < self.events.len() {
             self.events[index] = event.clone();
         } else {
-            return Err(LedgerError::StorageError("Non-sequential event index".to_string()));
+            return Err(LedgerError::StorageError(
+                "Non-sequential event index".to_string(),
+            ));
         }
         self.event_lookup.insert(event.event_id, index);
         Ok(())
@@ -229,7 +231,9 @@ impl LedgerStorage for DiskStore {
         } else if index < self.events.len() {
             self.events[index] = event.clone();
         } else {
-            return Err(LedgerError::StorageError("Non-sequential event index".to_string()));
+            return Err(LedgerError::StorageError(
+                "Non-sequential event index".to_string(),
+            ));
         }
         self.event_lookup.insert(event.event_id, index);
         self.persist_all()

@@ -67,10 +67,9 @@ impl<S: LedgerStorage> CryptographicLedger<S> {
         self.storage.save_event(leaf_index, event)?;
         self.storage.save_tree(&self.tree)?;
 
-        let inclusion_proof = self
-            .tree
-            .generate_proof(leaf_index)
-            .map_err(|e| LedgerError::MerkleError(format!("Failed to generate inclusion proof: {}", e)))?;
+        let inclusion_proof = self.tree.generate_proof(leaf_index).map_err(|e| {
+            LedgerError::MerkleError(format!("Failed to generate inclusion proof: {}", e))
+        })?;
 
         if let Some(mut r) = receipt {
             r.merkle_inclusion = Some(inclusion_proof.clone());
@@ -106,6 +105,11 @@ impl<S: LedgerStorage> CryptographicLedger<S> {
     /// Returns the total number of committed execution events.
     pub fn count(&self) -> usize {
         self.storage.event_count()
+    }
+
+    /// Returns the configured Merkle tree depth.
+    pub fn tree_depth(&self) -> usize {
+        self.tree_depth
     }
 
     /// Exports a portable `.zktrace` `AuditBundle` for a sequence of events.

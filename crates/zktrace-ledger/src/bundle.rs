@@ -59,26 +59,30 @@ impl AuditBundle {
 
     /// Serializes bundle to pretty-printed JSON.
     pub fn to_json(&self) -> LedgerResult<String> {
-        serde_json::to_string_pretty(self)
-            .map_err(|e| LedgerError::BundleError(format!("Failed to serialize bundle to JSON: {}", e)))
+        serde_json::to_string_pretty(self).map_err(|e| {
+            LedgerError::BundleError(format!("Failed to serialize bundle to JSON: {}", e))
+        })
     }
 
     /// Deserializes bundle from JSON string.
     pub fn from_json(json_str: &str) -> LedgerResult<Self> {
-        serde_json::from_str(json_str)
-            .map_err(|e| LedgerError::BundleError(format!("Failed to parse bundle from JSON: {}", e)))
+        serde_json::from_str(json_str).map_err(|e| {
+            LedgerError::BundleError(format!("Failed to parse bundle from JSON: {}", e))
+        })
     }
 
     /// Serializes bundle into compact binary format.
     pub fn to_bytes(&self) -> LedgerResult<Vec<u8>> {
-        bincode::serialize(self)
-            .map_err(|e| LedgerError::BundleError(format!("Failed to binary serialize bundle: {}", e)))
+        bincode::serialize(self).map_err(|e| {
+            LedgerError::BundleError(format!("Failed to binary serialize bundle: {}", e))
+        })
     }
 
     /// Deserializes bundle from compact binary bytes.
     pub fn from_bytes(bytes: &[u8]) -> LedgerResult<Self> {
-        bincode::deserialize(bytes)
-            .map_err(|e| LedgerError::BundleError(format!("Failed to binary deserialize bundle: {}", e)))
+        bincode::deserialize(bytes).map_err(|e| {
+            LedgerError::BundleError(format!("Failed to binary deserialize bundle: {}", e))
+        })
     }
 }
 
