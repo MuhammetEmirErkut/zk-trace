@@ -1662,7 +1662,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-circuits"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -1681,7 +1681,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-cli"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "anyhow",
  "axum",
@@ -1707,7 +1707,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-core"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -1731,7 +1731,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-ledger"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -1751,7 +1751,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-mcp"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "chrono",
  "futures-util",
@@ -1770,7 +1770,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-prover"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -1792,7 +1792,7 @@ dependencies = [
 
 [[package]]
 name = "zktrace-verifier"
-version = "0.1.0"
+version = "0.1.0-alpha"
 dependencies = [
  "ark-bn254",
  "ark-ff",

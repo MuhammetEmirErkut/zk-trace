@@ -2,8 +2,8 @@ apiVersion: v2
 name: zktrace
 description: Enterprise Helm chart for ZKTrace Zero-Knowledge Audit Trail & Verifier Service
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.1.0-alpha
+appVersion: "0.1.0-alpha"
 keywords:
   - zero-knowledge
   - mcp
