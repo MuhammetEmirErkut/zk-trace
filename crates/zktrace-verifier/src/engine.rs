@@ -5,7 +5,8 @@ use std::time::Instant;
 use ark_bn254::Bn254;
 use ark_groth16::{prepare_verifying_key, Groth16, PreparedVerifyingKey, Proof, VerifyingKey};
 use ark_serialize::CanonicalDeserialize;
-use zktrace_core::crypto::field::{fr_to_hex, Fr};
+use ark_snark::SNARK;
+use zktrace_core::crypto::field::{fr_to_hex, fr_to_u64, Fr};
 use zktrace_core::types::receipt::AuditReceipt;
 
 use crate::error::{VerifierError, VerifierResult};
@@ -66,9 +67,8 @@ impl ZKTraceVerifier {
         }
 
         // 3. Check timestamp validity (timestamp must be <= timestamp_window)
-        let ts_window_u64 = receipt.public_inputs.timestamp_window;
-        let ts_fr = Fr::from(receipt.timestamp as u64);
-        let timestamp_valid = ts_fr <= ts_window_u64;
+        let ts_window = fr_to_u64(&receipt.public_inputs.timestamp_window);
+        let timestamp_valid = receipt.timestamp >= 0 && (receipt.timestamp as u64) <= ts_window;
 
         // 4. Decode Groth16 proof
         let proof_bytes = receipt.proof.to_bytes().map_err(|e| {
