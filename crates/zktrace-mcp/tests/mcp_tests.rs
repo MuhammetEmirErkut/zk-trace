@@ -19,21 +19,28 @@ async fn test_mcp_proxy_valid_flow_and_audit() {
 
     // 2. Setup Policy
     let mut policy = PolicyTree::new("mcp-policy-prod", 1);
-    let rule = PolicyRule::new("stripe_payment", "Payment tool").with_constraint(
-        ParamConstraint {
-            param_name: "amount".to_string(),
-            constraint: ConstraintType::MaxSpendLimit { max_amount: 100_000 },
+    let rule = PolicyRule::new("stripe_payment", "Payment tool").with_constraint(ParamConstraint {
+        param_name: "amount".to_string(),
+        constraint: ConstraintType::MaxSpendLimit {
+            max_amount: 100_000,
         },
-    );
+    });
     policy.add_rule(rule);
 
     let agent = AgentIdentity::new("finance-agent-01", "enterprise");
-    let interceptor = Arc::new(McpInterceptor::new(agent, policy.clone(), prover, ledger.clone()));
+    let interceptor = Arc::new(McpInterceptor::new(
+        agent,
+        policy.clone(),
+        prover,
+        ledger.clone(),
+    ));
     let proxy = McpProxy::new(interceptor.clone(), Fr::from(9999u64));
 
     // 3. Process valid MCP JSON-RPC tool call
     let client_msg = r#"{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"stripe_payment","arguments":{"amount":45000}}}"#;
-    let action = proxy.handle_client_message(client_msg).expect("Handle message failed");
+    let action = proxy
+        .handle_client_message(client_msg)
+        .expect("Handle message failed");
 
     match action {
         ProxyAction::Forward { request, tool_call } => {
@@ -42,7 +49,10 @@ async fn test_mcp_proxy_valid_flow_and_audit() {
             assert_eq!(tc.name, "stripe_payment");
 
             // Complete tool invocation
-            proxy.on_tool_completed(&tc, true).await.expect("Audit completed");
+            proxy
+                .on_tool_completed(&tc, true)
+                .await
+                .expect("Audit completed");
         }
         ProxyAction::Reject { .. } => panic!("Valid call was rejected!"),
     }
@@ -56,7 +66,9 @@ async fn test_mcp_proxy_valid_flow_and_audit() {
 
     // 5. Verify receipt using ZKTraceVerifier
     let verifier = ZKTraceVerifier::new(keys.vk);
-    let report = verifier.verify_receipt(&bundle.receipts[0], None, None).unwrap();
+    let report = verifier
+        .verify_receipt(&bundle.receipts[0], None, None)
+        .unwrap();
     assert!(report.is_valid);
     assert_eq!(report.verdict, VerificationVerdict::Valid);
 }

@@ -59,9 +59,8 @@ pub struct McpToolCallParams {
 impl JsonRpcRequest {
     /// Parses a JSON-RPC request from a single-line JSON string.
     pub fn from_line(line: &str) -> McpResult<Self> {
-        serde_json::from_str(line.trim()).map_err(|e| {
-            McpError::JsonRpcError(format!("Failed to parse JSON-RPC request: {}", e))
-        })
+        serde_json::from_str(line.trim())
+            .map_err(|e| McpError::JsonRpcError(format!("Failed to parse JSON-RPC request: {}", e)))
     }
 
     /// Extracts typed `McpToolCallParams` if this request is a `tools/call`.
@@ -118,7 +117,9 @@ mod tests {
         let req = JsonRpcRequest::from_line(raw).expect("Parsing failed");
         assert_eq!(req.method, "tools/call");
 
-        let tool_call = req.extract_tool_call().expect("Tool call extraction failed");
+        let tool_call = req
+            .extract_tool_call()
+            .expect("Tool call extraction failed");
         assert_eq!(tool_call.name, "stripe_payment");
         assert_eq!(tool_call.arguments["amount"], 2500);
     }

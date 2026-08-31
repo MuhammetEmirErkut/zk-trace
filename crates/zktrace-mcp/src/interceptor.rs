@@ -43,15 +43,12 @@ impl<S: LedgerStorage> McpInterceptor<S> {
 
     /// Evaluates policy constraints on a tool invocation before execution.
     pub fn validate_policy(&self, tool_call: &McpToolCallParams) -> McpResult<()> {
-        let rule = self
-            .policy
-            .get_rule(&tool_call.name)
-            .ok_or_else(|| {
-                McpError::PolicyViolation(format!(
-                    "Tool '{}' is not permitted under active policy '{}'",
-                    tool_call.name, self.policy.policy_id
-                ))
-            })?;
+        let rule = self.policy.get_rule(&tool_call.name).ok_or_else(|| {
+            McpError::PolicyViolation(format!(
+                "Tool '{}' is not permitted under active policy '{}'",
+                tool_call.name, self.policy.policy_id
+            ))
+        })?;
 
         for c in &rule.constraints {
             match &c.constraint {
@@ -111,13 +108,9 @@ impl<S: LedgerStorage> McpInterceptor<S> {
         let current_root = ledger_guard.get_root();
 
         // Generate succinct Groth16 proof receipt
-        let receipt = self.prover.prove_execution(
-            &event,
-            &self.policy,
-            raw_prompt,
-            None,
-            current_root,
-        )?;
+        let receipt =
+            self.prover
+                .prove_execution(&event, &self.policy, raw_prompt, None, current_root)?;
 
         // Commit to ledger
         let (_leaf_idx, _new_root, _proof) = ledger_guard

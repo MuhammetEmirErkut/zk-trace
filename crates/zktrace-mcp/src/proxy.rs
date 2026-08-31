@@ -1,12 +1,11 @@
 //! Stdio and stream-based transparent MCP JSON-RPC 2.0 proxy.
 
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use zktrace_core::crypto::Fr;
 use zktrace_core::types::execution::ExecutionStatus;
 use zktrace_ledger::store::LedgerStorage;
 
-use crate::error::{McpError, McpResult};
+use crate::error::McpResult;
 use crate::interceptor::McpInterceptor;
 use crate::protocol::{JsonRpcRequest, JsonRpcResponse, McpToolCallParams};
 
@@ -32,6 +31,15 @@ pub struct McpProxy<S: LedgerStorage> {
     pub interceptor: Arc<McpInterceptor<S>>,
     /// Active session nonce.
     pub session_id: Fr,
+}
+
+impl<S: LedgerStorage> Clone for McpProxy<S> {
+    fn clone(&self) -> Self {
+        Self {
+            interceptor: self.interceptor.clone(),
+            session_id: self.session_id,
+        }
+    }
 }
 
 impl<S: LedgerStorage> McpProxy<S> {
