@@ -3,6 +3,7 @@
 use ark_bn254::Bn254;
 use ark_groth16::{Groth16, ProvingKey, VerifyingKey};
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
+use ark_snark::SNARK;
 use ark_std::rand::rngs::StdRng;
 use ark_std::rand::SeedableRng;
 use zktrace_circuits::circuit::ExecutionPolicyCircuit;

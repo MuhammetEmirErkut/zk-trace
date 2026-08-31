@@ -3,6 +3,7 @@
 use ark_bn254::Bn254;
 use ark_groth16::{Groth16, Proof};
 use ark_serialize::CanonicalDeserialize;
+use ark_snark::SNARK;
 use zktrace_core::crypto::{Fr, MerkleTree};
 use zktrace_core::types::execution::{AgentIdentity, ExecutionEvent, ExecutionStatus};
 use zktrace_core::types::policy::{ConstraintType, ParamConstraint, PolicyRule, PolicyTree};

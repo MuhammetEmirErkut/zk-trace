@@ -3,6 +3,7 @@
 use ark_bn254::Bn254;
 use ark_groth16::Groth16;
 use ark_serialize::CanonicalSerialize;
+use ark_snark::SNARK;
 use ark_std::rand::rngs::OsRng;
 use uuid::Uuid;
 use zktrace_core::crypto::{Fr, MerkleProof};
