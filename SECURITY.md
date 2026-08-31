@@ -22,7 +22,7 @@ If you discover a security vulnerability, cryptographic flaw, or potential explo
 **DO NOT file a public GitHub Issue for security vulnerabilities.**
 
 ### Disclosure Process
-1. **Email**: Send your vulnerability report directly to `security@zktrace.io` (or maintainers via private GPG/encrypted email).
+1. **Email**: Send your vulnerability report directly to `muhammetemir.erkut@gmail.com` (or maintainers via private GPG/encrypted email).
 2. **Details to Include**:
    - Component / Module affected (e.g., `zktrace-core`, `zktrace-circuits`, `zktrace-mcp-proxy`).
    - Detailed description of the vulnerability, including attack vectors and potential impact.

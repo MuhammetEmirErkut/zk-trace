@@ -1,0 +1,8 @@
+[advisories]
+ignore = [
+    # Transitive macro and utility crates in the Arkworks/Bincode ecosystem
+    "RUSTSEC-2024-0388", # derivative unmaintained
+    "RUSTSEC-2024-0436", # paste unmaintained
+    "RUSTSEC-2025-0141", # bincode unmaintained notice
+    "RUSTSEC-2025-0055", # tracing-subscriber transitive ANSI escape notice
+]

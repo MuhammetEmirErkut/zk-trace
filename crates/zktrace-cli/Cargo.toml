@@ -1,0 +1,38 @@
+[package]
+name = "zktrace-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+description = "Unified CLI and high-throughput REST verifier server for the ZKTrace ecosystem"
+
+[[bin]]
+name = "zktrace"
+path = "src/main.rs"
+
+[dependencies]
+zktrace-core = { workspace = true }
+zktrace-circuits = { workspace = true }
+zktrace-prover = { workspace = true }
+zktrace-verifier = { workspace = true }
+zktrace-ledger = { workspace = true }
+zktrace-mcp = { workspace = true }
+
+clap = { workspace = true }
+tokio = { workspace = true }
+axum = { workspace = true }
+tower-http = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+rand = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.12"

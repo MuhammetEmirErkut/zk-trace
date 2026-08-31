@@ -1,4 +1,8 @@
-# Local environment & private files
+# Local environment & private memory/runbook files
+MEMORY.md
+DEVELOPER.md
+MEMORY*
+DEVELOPER*
 *.local.md
 *.local
 .local/

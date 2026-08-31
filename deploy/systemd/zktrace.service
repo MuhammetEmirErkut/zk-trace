@@ -1,0 +1,22 @@
+[Unit]
+Description=ZKTrace Zero-Knowledge Audit Verifier Service
+After=network.target
+Documentation=https://github.com/zktrace/zktrace
+
+[Service]
+Type=simple
+User=zktrace
+Group=zktrace
+WorkingDirectory=/var/lib/zktrace
+ExecStart=/usr/local/bin/zktrace serve --port 8080 --vk-path /var/lib/zktrace/keys/verifying.key
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+Environment=RUST_LOG=info
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/zktrace
+
+[Install]
+WantedBy=multi-user.target
