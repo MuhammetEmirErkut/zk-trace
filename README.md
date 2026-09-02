@@ -17,6 +17,7 @@
 
 <br/>
 
+[💡 Why ZKTrace?](#-why-zktrace) •
 [🌟 Features](#-unique-value-propositions) •
 [🏗️ Architecture](#️-high-level-architecture) •
 [🔬 Cryptography](#-cryptographic-specification) •
@@ -30,6 +31,25 @@
 </div>
 
 <br/>
+
+**ZKTrace** is a high-throughput Zero-Knowledge Proof (ZKP) audit trail and compliance layer for autonomous AI agents operating over the [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
+
+It solves the fundamental enterprise dilemma of AI agent execution: **How can you mathematically prove to auditors, regulators, and downstream systems that an AI agent obeyed safety boundaries (e.g. read-only SQL, spending limits $\le \$1,000$, whitelisted endpoints) without revealing confidential prompts, PII, API credentials, or proprietary payloads?**
+
+---
+
+## 💡 Why ZKTrace?
+
+| Capability | Plaintext Loggers (Datadog, LangSmith) | Generic zkVMs (SP1, RISC Zero) | 🛡️ **ZKTrace** |
+| :--- | :---: | :---: | :---: |
+| **Privacy & PII Protection** | ❌ Logs plaintext prompts & data | ✅ Cryptographic ZK masking | ✅ **Zero raw data leakage** |
+| **Proving Latency** | ⚡ None (unverifiable text) | ❌ 30s – 3 mins (heavy RAM) | ⚡ **< 40 ms (Real-time)** |
+| **Verification Latency** | ❌ Manual log inspection | ⚠️ 50ms – 1s | ⚡ **< 3 ms (Instant)** |
+| **MCP Protocol Support** | ⚠️ Custom SDK instrumentation | ❌ Requires custom zkVM guest code | ✅ **Zero-code JSON-RPC proxy** |
+| **Audit Receipt Size** | ❌ Megabytes of JSON traces | ⚠️ 50KB – 200KB | 📦 **~128 Bytes (Compact)** |
+| **Tamper Resistance** | ❌ Mutable centralized databases | ⚠️ Depends on storage | 🔒 **Poseidon Merkle Ledger** |
+
+---
 
 ## 🌟 Unique Value Propositions
 
