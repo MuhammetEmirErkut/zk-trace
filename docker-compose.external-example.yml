@@ -1,0 +1,59 @@
+# ==============================================================================
+# Example: Integrating ZKTrace into your own multi-container project
+# ==============================================================================
+# Use this configuration template to seamlessly connect your AI Agent backend,
+# microservice, or API gateway to the ZKTrace verifier without network errors.
+# ==============================================================================
+
+version: "3.8"
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. ZKTrace Verifier Server Service
+  # ----------------------------------------------------------------------------
+  zktrace-verifier:
+    image: zktrace/zktrace:latest
+    # Or build locally:
+    # build:
+    #   context: ../zk-trace
+    #   dockerfile: Dockerfile
+    container_name: zktrace-verifier
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - RUST_LOG=info
+      - ZKTRACE_HOST=0.0.0.0
+      - ZKTRACE_PORT=8080
+    command: ["serve", "--host", "0.0.0.0", "--port", "8080"]
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/zktrace", "healthcheck", "--host", "127.0.0.1", "--port", "8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    networks:
+      - app-network
+
+  # ----------------------------------------------------------------------------
+  # 2. Your Application / AI Agent Service
+  # ----------------------------------------------------------------------------
+  my-ai-agent-service:
+    image: python:3.11-slim
+    container_name: my-ai-agent
+    depends_on:
+      zktrace-verifier:
+        condition: service_healthy # Prevents ECONNREFUSED startup race conditions
+    environment:
+      # Use the container DNS name inside the shared Docker network:
+      - ZKTRACE_VERIFIER_URL=http://zktrace-verifier:8080
+    command: ["python", "-c", "import urllib.request; print(urllib.request.urlopen('http://zktrace-verifier:8080/health').read().decode())"]
+    networks:
+      - app-network
+
+# ------------------------------------------------------------------------------
+# Bridge Network for container-to-container DNS resolution
+# ------------------------------------------------------------------------------
+networks:
+  app-network:
+    driver: bridge
