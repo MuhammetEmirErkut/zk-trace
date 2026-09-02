@@ -79,13 +79,12 @@ flowchart LR
 
 ## 🔬 Cryptographic Specification
 
-| Component | Technical Details | Description |
+| Primitive | Implementation | Role |
 | :--- | :--- | :--- |
-| **Proving System** | Groth16 zk-SNARK (`ark-groth16`) | Compact pairing-based proofs with ultra-fast verification. |
-| **Elliptic Curve** | BN254 (alt_bn128) | Pairing-friendly curve with native EVM and cross-platform support. |
-| **Algebraic Hash** | Poseidon Permutation ($t=3, t=5$ over $\mathbb{F}_r$) | High-throughput, SNARK-friendly algebraic hashing. |
-| **Public Wires** | $\big( R_{\text{policy}}, D_{\text{exec}}, \text{AgentID}_{\text{hash}}, \text{SessionID}, \text{TimestampWindow} \big)$ | Cryptographic public boundary required for verification. |
-| **Execution Digest** | $D_{\text{exec}} = \text{Poseidon}\big(\text{ToolID}_{\text{hash}}, \text{ParamDigest}, \text{ResultCode}, \text{Timestamp}, \text{SessionID}\big)$ | Deterministic proof binding without revealing payload contents. |
+| **zk-SNARK** | Groth16 over **BN254** (`ark-groth16`) | Compact ~128B proofs, sub-3ms verification. |
+| **Hash Function** | Poseidon Permutation ($t=3, t=5$ on $\mathbb{F}_r$) | High-throughput, SNARK-friendly algebraic hashing. |
+| **Public Inputs** | $(R_{\text{policy}}, D_{\text{exec}}, \text{AgentID}_{\text{hash}}, \text{SessionID}, \Delta t)$ | Verifiable public compliance boundary. |
+| **Execution Digest** | $\text{Poseidon}(\text{ToolID}_{\text{hash}}, \text{ParamDigest}, \text{ResultCode}, t, \text{Nonce})$ | Cryptographic binding without leaking payload data. |
 
 ---
 
