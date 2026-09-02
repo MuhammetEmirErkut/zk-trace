@@ -42,7 +42,11 @@ pub async fn execute_healthcheck(host: &str, port: u16, timeout_ms: u64) -> Resu
             );
         }
         Err(_) => {
-            bail!("Connection timed out after {}ms on {}", timeout_ms, socket_addr);
+            bail!(
+                "Connection timed out after {}ms on {}",
+                timeout_ms,
+                socket_addr
+            );
         }
     };
 

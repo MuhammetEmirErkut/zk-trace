@@ -85,7 +85,9 @@ async fn test_healthcheck_fails_on_closed_port() {
         .output();
 
     if let Ok(output) = res {
-        assert!(!output.status.success(), "Healthcheck on closed port must exit with non-zero status");
+        assert!(
+            !output.status.success(),
+            "Healthcheck on closed port must exit with non-zero status"
+        );
     }
 }
-
