@@ -121,7 +121,7 @@ zktrace verify ./audit_trail.zktrace
 
 ### 5. Launch REST API Verifier Daemon
 ```bash
-zktrace serve --port 8080
+zktrace serve --host 0.0.0.0 --port 8080
 ```
 Audit receipts remotely via HTTP:
 ```bash
@@ -129,6 +129,19 @@ curl -X POST http://localhost:8080/v1/verify \
   -H "Content-Type: application/json" \
   -d @audit_trail.zktrace
 ```
+
+### 6. Run with Docker & Docker Compose
+```bash
+# Start the verifier container with health monitoring
+docker compose up -d
+
+# Verify container health
+docker compose ps
+curl http://localhost:8080/health
+```
+> 📘 **Multi-Project Integration Guide**: For integrating ZKTrace into external AI agents, Docker microservices, or Kubernetes stacks without network errors, see [docs/DOCKER_NETWORKING.md](docs/DOCKER_NETWORKING.md) and [`docker-compose.external-example.yml`](docker-compose.external-example.yml).
+>
+> 🤖 **AI IDE & Assistant Prompt**: To enable AI assistants (Claude, Antigravity, Cursor, Copilot) to automatically understand and integrate ZKTrace into your target project, copy and paste [`ZKTRACE_INTEGRATION_PROMPT.md`](ZKTRACE_INTEGRATION_PROMPT.md).
 
 ---
 
