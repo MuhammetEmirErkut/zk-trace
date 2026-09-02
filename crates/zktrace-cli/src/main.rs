@@ -74,12 +74,28 @@ enum Commands {
 
     /// Launch high-throughput HTTP REST API verifier server.
     Serve {
+        /// HTTP server listening host/IP address.
+        #[arg(long, env = "ZKTRACE_HOST", default_value = "0.0.0.0")]
+        host: String,
         /// HTTP server listening port.
-        #[arg(short, long, default_value_t = 8080)]
+        #[arg(short, long, env = "ZKTRACE_PORT", default_value_t = 8080)]
         port: u16,
         /// Optional path to custom Verifying Key file.
         #[arg(long)]
         vk: Option<PathBuf>,
+    },
+
+    /// Perform a lightweight HTTP GET health probe against a ZKTrace server instance.
+    Healthcheck {
+        /// Target server host/IP address.
+        #[arg(long, env = "ZKTRACE_HOST", default_value = "127.0.0.1")]
+        host: String,
+        /// Target server listening port.
+        #[arg(short, long, env = "ZKTRACE_PORT", default_value_t = 8080)]
+        port: u16,
+        /// Health probe connection timeout in milliseconds.
+        #[arg(long, default_value_t = 3000)]
+        timeout_ms: u64,
     },
 }
 
@@ -116,8 +132,15 @@ async fn main() -> anyhow::Result<()> {
         } => {
             commands::proxy::execute_proxy(policy, ledger_dir, &agent, &org).await?;
         }
-        Commands::Serve { port, vk } => {
-            commands::server::execute_server(port, vk.as_deref()).await?;
+        Commands::Serve { host, port, vk } => {
+            commands::server::execute_server(&host, port, vk.as_deref()).await?;
+        }
+        Commands::Healthcheck {
+            host,
+            port,
+            timeout_ms,
+        } => {
+            commands::health::execute_healthcheck(&host, port, timeout_ms).await?;
         }
     }
 

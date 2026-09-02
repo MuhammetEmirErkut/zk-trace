@@ -66,3 +66,26 @@ fn test_cli_verify_flow() {
     let report = verifier.verify_receipt(&receipt, None, None).unwrap();
     assert!(report.is_valid);
 }
+
+#[tokio::test]
+async fn test_healthcheck_fails_on_closed_port() {
+    // Port 59123 is arbitrary and closed
+    let res = std::process::Command::new("cargo")
+        .args([
+            "run",
+            "-p",
+            "zktrace-cli",
+            "--",
+            "healthcheck",
+            "--port",
+            "59123",
+            "--timeout-ms",
+            "500",
+        ])
+        .output();
+
+    if let Ok(output) = res {
+        assert!(!output.status.success(), "Healthcheck on closed port must exit with non-zero status");
+    }
+}
+
