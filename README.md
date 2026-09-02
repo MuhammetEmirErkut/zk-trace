@@ -33,92 +33,46 @@
 
 ## 🌟 Unique Value Propositions
 
-| Feature | Description | Benefit |
+| Pillar | What It Delivers | Key Advantage |
 | :--- | :--- | :--- |
-| **🔒 Zero-Knowledge Execution Proofs** | Generates compact **~128-byte** Groth16 proofs over BN254 verifying MCP tool calls in **$< 40\text{ms}$**. | Prove compliance without sharing sensitive internal context. |
-| **🛡️ Privacy-Preserving Compliance** | Enforces policy boundaries (e.g. read-only SQL, spending limits $\le \$1,000$, regex whitelists) with zero raw data disclosure. | Solves enterprise data governance and PII privacy hurdles. |
-| **⚡ Instant Verifier Engine** | Ultra-fast mathematical verification engine completing full proof audits in **$< 3\text{ms}$**. | Real-time auditability for compliance officers & automated gateways. |
-| **🧩 Model Context Protocol (MCP) Native** | Transparent JSON-RPC 2.0 proxy operating over `stdio` and HTTP/SSE. | Zero code changes required for existing MCP clients (Claude, Cursor, custom agents). |
-| **📜 Immutable Merkle Ledger** | Append-only Incremental Merkle Tree with Poseidon hashing over $\mathbb{F}_r$. | Tamper-proof, cryptographically auditable history. |
-| **📦 Single Self-Contained Binary** | Embedded prover, verifier, proxy daemon, and CLI with zero external dependencies. | Deploy anywhere: bare-metal, Distroless Docker, Kubernetes, or Edge. |
+| **🔒 Zero-Knowledge Proofs** | Generates **~128-byte** Groth16 proofs in **$< 40\text{ms}$**. | Full compliance without exposing internal prompts, PII, or API keys. |
+| **⚡ Instant Verification** | Verifies proofs in **$< 3\text{ms}$** via CLI, SDK, or REST API. | Real-time mathematical audits for automated security gateways. |
+| **🧩 Transparent MCP Proxy** | Zero-code JSON-RPC 2.0 middleware (`stdio`/HTTP). | Instant plug-and-play with Claude, Cursor, and custom AI agents. |
+| **📜 Immutable Merkle Ledger** | Append-only IMT with Poseidon hashing over $\mathbb{F}_r$. | Tamper-proof, cryptographically verifiable history in `.zktrace` bundles. |
 
 ---
 
 ## 🏗️ High-Level Architecture
 
-### 1. End-to-End System Workflow
+### End-to-End Execution & Audit Flow
 
 ```mermaid
-flowchart TB
-    %% Styling
-    classDef client fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+flowchart LR
+    %% Compact Styling
+    classDef box fill:#1e293b,stroke:#38bdf8,stroke-width:1.5px,color:#f8fafc;
     classDef proxy fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
-    classDef tool fill:#1e293b,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
-    classDef ledger fill:#1e293b,stroke:#eab308,stroke-width:2px,color:#f8fafc;
-    classDef audit fill:#1e293b,stroke:#ec4899,stroke-width:2px,color:#f8fafc;
+    classDef ledger fill:#1e293b,stroke:#eab308,stroke-width:1.5px,color:#f8fafc;
+    classDef audit fill:#1e293b,stroke:#ec4899,stroke-width:1.5px,color:#f8fafc;
 
-    subgraph ClientLayer["1. AI Agent Environment"]
-        LLM["🤖 AI Agent / LLM Client\n(Claude, OpenAI, Cursor, Custom Agent)"]:::client
-    end
+    Agent["🤖 AI Agent\n(Claude / Cursor)"]:::box
+    Proxy["🛡️ ZKTrace Proxy\n(Witness + Groth16)"]:::proxy
+    Tools["🧰 Target Tools\n(DB / Stripe / API)"]:::box
+    Ledger[("🌲 Merkle Ledger\n(Rolling Root R_t)")]:::ledger
+    Verifier["🔎 Instant Verifier\n(< 3ms Verdict)"]:::audit
 
-    subgraph ZKTraceProxy["2. ZKTrace MCP Middleware / Interceptor"]
-        MCP_Proxy["⚡ MCP Proxy & JSON-RPC Interceptor\n(stdio / HTTP-SSE)"]:::proxy
-        WitnessGen["🎭 Automated Witness Synthesizer\n(Masks PII, computes execution digest)"]:::proxy
-        ZKProver["🛡️ Groth16 Prover (BN254 / Arkworks)\nGenerates Proof π in < 40ms"]:::proxy
-    end
-
-    subgraph ToolLayer["3. Target Tool & API Services"]
-        MCP_Tools["🧰 MCP Tool Servers\n(PostgreSQL, Stripe, GitHub, File System)"]:::tool
-    end
-
-    subgraph LedgerLayer["4. Immutable Cryptographic Ledger"]
-        MerkleLedger["🌲 Append-Only Merkle Tree (Poseidon)\nRolling State Root R_t"]:::ledger
-        StorageEngine["💾 Disk Storage Engine\n(Atomically Persisted Checkpoints)"]:::ledger
-    end
-
-    subgraph AuditorLayer["5. Instant Verifier SDK & REST Daemon"]
-        AuditReceipt["📄 .zktrace Audit Receipt / Bundle\n[Proof π | Public Inputs | Merkle Path]"]:::audit
-        VerifierEngine["🔎 ZKTrace Verifier Engine / REST API\n(Verifies in < 3ms without raw payload)"]:::audit
-        Auditor["⚖️ Compliance Officer / Auditor / DAO"]:::audit
-    end
-
-    LLM -->|"1. tools/call (e.g. execute_sql, transfer_funds)"| MCP_Proxy
-    MCP_Proxy -->|"2. Forward sanitized tool call"| MCP_Tools
-    MCP_Tools -->|"3. Tool execution result"| MCP_Proxy
-    MCP_Proxy -->|"4. Synthesize witness"| WitnessGen
-    WitnessGen -->|"5. Private witness & public inputs"| ZKProver
-    ZKProver -->|"6. Cryptographic Proof π"| MerkleLedger
-    MerkleLedger -->|"7. Commit Leaf & update Root"| StorageEngine
-    StorageEngine -->|"8. Emit .zktrace Receipt"| AuditReceipt
-    AuditReceipt -->|"9. Verify Proof & Policy Root"| VerifierEngine
-    VerifierEngine -->|"10. Mathematical Verdict (VALID / INVALID)"| Auditor
-    MCP_Proxy -->|"11. Return tool response"| LLM
+    Agent <-->|"1. tools/call"| Proxy
+    Proxy <-->|"2. Execute"| Tools
+    Proxy -->|"3. Proof π"| Ledger
+    Ledger -->|"4. .zktrace Receipt"| Verifier
 ```
 
----
-
-### 2. Privacy vs. Verifiability Data Flow
+### Privacy Boundary
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            PRIVATE WITNESS (ZK-MASKED)                      │
-│  • Raw Prompt Text & PII               • Concrete SQL Query String          │
-│  • API Keys & Credentials             • User Identification Details         │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-                                       ▼
-                     ┌───────────────────────────────────┐
-                     │   ZKTrace Groth16 R1CS Circuit    │
-                     │  Enforces bounds, range, & policy │
-                     └─────────────────┬─────────────────┘
-                                       │
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         PUBLIC AUDIT RECORD (AUDITOR-FACING)                │
-│  • Policy Tree Root Hash (R_policy)    • Cryptographic Proof (π)            │
-│  • Execution Digest (D_exec)           • Merkle Inclusion Path              │
-│  • Public Agent Identity Hash          • Session Nonce & Timestamp Window   │
-└─────────────────────────────────────────────────────────────────────────────┘
+  [ Private Witness (Masked) ]  ──►  ┌────────────────────────┐  ──►  [ Public Audit Receipt ]
+  • Prompts & PII                    │  Groth16 R1CS Circuit  │       • Policy Root & Proof π
+  • Raw Queries & Secrets            │  Enforces Bounds & ZK  │       • Execution Digest & Time
+                                     └────────────────────────┘
 ```
 
 ---
