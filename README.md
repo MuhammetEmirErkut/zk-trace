@@ -17,6 +17,7 @@
 
 <br/>
 
+[🎯 Overview](#-overview) •
 [💡 Why ZKTrace?](#-why-zktrace) •
 [🌟 Features](#-unique-value-propositions) •
 [🏗️ Architecture](#️-high-level-architecture) •
@@ -31,6 +32,8 @@
 </div>
 
 <br/>
+
+## 🎯 Overview
 
 **ZKTrace** is a high-throughput Zero-Knowledge Proof (ZKP) audit trail and compliance layer for autonomous AI agents operating over the [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
 
