@@ -11,7 +11,6 @@ use axum::{
 use serde_json::{json, Value};
 use std::fs::File;
 use std::io::Read;
-use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
@@ -25,7 +24,7 @@ struct AppState {
 }
 
 /// Launches the high-throughput HTTP REST API verifier daemon.
-pub async fn execute_server(port: u16, vk_path: Option<&Path>) -> Result<()> {
+pub async fn execute_server(host: &str, port: u16, vk_path: Option<&Path>) -> Result<()> {
     let vk = if let Some(vp) = vk_path {
         let mut vk_file =
             File::open(vp).with_context(|| format!("Failed to open VK file {:?}", vp))?;
@@ -47,18 +46,58 @@ pub async fn execute_server(port: u16, vk_path: Option<&Path>) -> Result<()> {
         .layer(CorsLayer::permissive())
         .with_state(state);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let bind_addr = format!("{}:{}", host, port);
+    let listener = tokio::net::TcpListener::bind(&bind_addr)
+        .await
+        .with_context(|| format!("Failed to bind TCP listener to {}", bind_addr))?;
+
+    let local_addr = listener.local_addr()?;
     println!(
         "🚀 ZKTrace REST API Verifier Server listening on http://{}",
-        addr
+        local_addr
     );
     println!("   Endpoints:");
     println!("     GET  /health");
     println!("     POST /v1/verify (Audits single receipt or .zktrace bundle)");
 
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
+
+    println!("🛑 ZKTrace REST API Verifier Server stopped gracefully.");
     Ok(())
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+            Ok(mut signal) => {
+                signal.recv().await;
+            }
+            Err(_) => {
+                std::future::pending::<()>().await;
+            }
+        }
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {
+            println!("\nReceived Ctrl+C, initiating graceful shutdown...");
+        },
+        _ = terminate => {
+            println!("\nReceived SIGTERM, initiating graceful shutdown...");
+        },
+    }
 }
 
 async fn health_check() -> impl IntoResponse {

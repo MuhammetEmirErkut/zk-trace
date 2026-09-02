@@ -38,8 +38,18 @@ COPY --from=builder --chown=nonroot:nonroot /build/target/release/zktrace /usr/l
 # Expose default REST Verifier port
 EXPOSE 8080
 
+# Environment defaults for container networking
+ENV ZKTRACE_HOST=0.0.0.0 \
+    ZKTRACE_PORT=8080 \
+    RUST_LOG=info
+
+# Native Distroless Container Healthcheck
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+    CMD ["/usr/local/bin/zktrace", "healthcheck", "--host", "127.0.0.1", "--port", "8080"]
+
 # Run as unprivileged user
 USER nonroot:nonroot
 
 ENTRYPOINT ["/usr/local/bin/zktrace"]
-CMD ["serve", "--port", "8080"]
+CMD ["serve", "--host", "0.0.0.0", "--port", "8080"]
+

@@ -14,8 +14,26 @@ services:
       - zktrace-data:/data
     environment:
       - RUST_LOG=info
+      - ZKTRACE_HOST=0.0.0.0
+      - ZKTRACE_PORT=8080
       - ZKTRACE_DATA_DIR=/data
-    command: ["serve", "--port", "8080"]
+    command: ["serve", "--host", "0.0.0.0", "--port", "8080"]
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/zktrace", "healthcheck", "--host", "127.0.0.1", "--port", "8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      zktrace-network:
+        aliases:
+          - zktrace
+          - zktrace-verifier
+
+networks:
+  zktrace-network:
+    name: zktrace-network
+    driver: bridge
 
 volumes:
   zktrace-data:
