@@ -43,25 +43,25 @@ It solves the fundamental enterprise dilemma of AI agent execution: **How can yo
 
 ## 💡 Why ZKTrace?
 
-| Capability | Plaintext Loggers (Datadog, LangSmith) | Generic zkVMs (SP1, RISC Zero) | 🛡️ **ZKTrace** |
+| Feature | Plaintext Loggers | Generic zkVMs | 🛡️ **ZKTrace** |
 | :--- | :---: | :---: | :---: |
-| **Privacy & PII Protection** | ❌ Logs plaintext prompts & data | ✅ Cryptographic ZK masking | ✅ **Zero raw data leakage** |
-| **Proving Latency** | ⚡ None (unverifiable text) | ❌ 30s – 3 mins (heavy RAM) | ⚡ **< 40 ms (Real-time)** |
-| **Verification Latency** | ❌ Manual log inspection | ⚠️ 50ms – 1s | ⚡ **< 3 ms (Instant)** |
-| **MCP Protocol Support** | ⚠️ Custom SDK instrumentation | ❌ Requires custom zkVM guest code | ✅ **Zero-code JSON-RPC proxy** |
-| **Audit Receipt Size** | ❌ Megabytes of JSON traces | ⚠️ 50KB – 200KB | 📦 **~128 Bytes (Compact)** |
-| **Tamper Resistance** | ❌ Mutable centralized databases | ⚠️ Depends on storage | 🔒 **Poseidon Merkle Ledger** |
+| **Privacy & PII** | ❌ Leaks plaintext data | ✅ Private | 🔒 **100% ZK-Masked** |
+| **Proving Latency** | ⚡ None (Plaintext) | ❌ 30s – 3 min | ⚡ **< 40 ms (Real-time)** |
+| **Verify Latency** | ❌ Manual log review | ⚠️ ~500 ms | ⚡ **< 3 ms (Instant)** |
+| **MCP Integration** | ⚠️ Custom SDK code | ❌ Needs custom guest code | 🧩 **Zero-code proxy** |
+| **Receipt Size** | ❌ Megabytes | ⚠️ 50–200 KB | 📦 **~128 Bytes** |
+| **Data Integrity** | ❌ Mutable DB | ⚠️ Storage-dependent | 📜 **Merkle Ledger** |
 
 ---
 
 ## 🌟 Unique Value Propositions
 
-| Pillar | What It Delivers | Key Advantage |
+| Pillar | Deliverable | Key Advantage |
 | :--- | :--- | :--- |
-| **🔒 Zero-Knowledge Proofs** | Generates **~128-byte** Groth16 proofs in **$< 40\text{ms}$**. | Full compliance without exposing internal prompts, PII, or API keys. |
-| **⚡ Instant Verification** | Verifies proofs in **$< 3\text{ms}$** via CLI, SDK, or REST API. | Real-time mathematical audits for automated security gateways. |
-| **🧩 Transparent MCP Proxy** | Zero-code JSON-RPC 2.0 middleware (`stdio`/HTTP). | Instant plug-and-play with Claude, Cursor, and custom AI agents. |
-| **📜 Immutable Merkle Ledger** | Append-only IMT with Poseidon hashing over $\mathbb{F}_r$. | Tamper-proof, cryptographically verifiable history in `.zktrace` bundles. |
+| **🔒 Zero-Knowledge Proofs** | ~128B Groth16 proofs in < 40ms | Mathematical compliance with zero data leaks. |
+| **⚡ Instant Verification** | Sub-3ms mathematical verification | Real-time audit checks via CLI, SDK, or REST API. |
+| **🧩 Transparent MCP Proxy** | Zero-code JSON-RPC middleware | Instant drop-in for Claude, Cursor, and agents. |
+| **📜 Immutable Ledger** | Poseidon Incremental Merkle Tree | Tamper-proof `.zktrace` audit trail bundles. |
 
 ---
 
