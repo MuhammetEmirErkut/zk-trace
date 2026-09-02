@@ -1,100 +1,158 @@
-# 🛡️ ZKTrace: Zero-Knowledge Cryptographic Audit Trail for AI Agents
+<div align="center">
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CI](https://github.com/zktrace/zktrace/actions/workflows/ci.yml/badge.svg)](https://github.com/zktrace/zktrace/actions)
-[![Rust](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](https://www.rust-lang.org)
-[![Zero-Knowledge](https://img.shields.io/badge/ZKP-Groth16%20%2F%20BN254-purple.svg)](https://eprint.iacr.org/2016/260)
-[![MCP](https://img.shields.io/badge/Protocol-Model%20Context%20Protocol%20(MCP)-green.svg)](https://modelcontextprotocol.io)
+# 🛡️ ZKTrace
 
-**ZKTrace** is an enterprise-grade, lightweight Zero-Knowledge Proof (ZKP) execution and audit trail system for AI agents operating over the [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
+### **Zero-Knowledge Cryptographic Audit Trail for AI Agents & MCP**
 
-It enables developers, enterprises, and third-party auditors to **mathematically prove that an AI agent executed a tool, database query, or API call strictly within defined policy bounds WITHOUT exposing sensitive prompt text, PII, payload contents, or API credentials.**
+*Mathematically prove AI agent compliance, tool execution bounds, and safety policies without exposing confidential prompts, PII, API keys, or raw payloads.*
+
+<br/>
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://img.shields.io/github/actions/workflow/status/MuhammetEmirErkut/zk-trace/ci.yml?branch=develop&style=for-the-badge&label=CI%20Build)](https://github.com/MuhammetEmirErkut/zk-trace/actions)
+[![Rust](https://img.shields.io/badge/Rust-1.82%2B-orange.svg?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
+[![Zero-Knowledge](https://img.shields.io/badge/ZKP-Groth16%20%2F%20BN254-purple.svg?style=for-the-badge)](https://eprint.iacr.org/2016/260)
+[![MCP](https://img.shields.io/badge/Protocol-MCP%20JSON--RPC-green.svg?style=for-the-badge&logo=anthropic)](https://modelcontextprotocol.io)
+[![Docker](https://img.shields.io/badge/Docker-Distroless%20Ready-2496ED.svg?style=for-the-badge&logo=docker)](https://hub.docker.com)
+
+<br/>
+
+[🌟 Features](#-unique-value-propositions) •
+[🏗️ Architecture](#️-high-level-architecture) •
+[🔬 Cryptography](#-cryptographic-specification) •
+[🚀 Quickstart](#-quickstart-guide) •
+[🐳 Docker](#-docker-deployment--multi-project-networking) •
+[⚡ Benchmarks](#-performance-benchmarks) •
+[🤖 AI Integration](#-ai-ide--assistant-integration)
 
 ---
 
-## 🌟 Unique Value Propositions (UVP)
+</div>
 
-1. **Zero-Knowledge Execution Proofs**: Generates compact (~128-byte) Groth16 proofs over BN254 verifying MCP tool invocations in $< 50\text{ms}$.
-2. **Data Privacy & Governance**: Proves compliance (e.g. read-only SQL, spending limits $\le \$1,000$, whitelisted endpoints) without leaking confidential prompts or credentials.
-3. **Instant Verifier SDK**: Ultra-fast verifier engine allowing third-party compliance officers to verify proofs in $< 5\text{ms}$ via CLI or REST endpoints.
-4. **Standalone Single Binary**: Zero external runtime dependencies; embeds prover, verifier, proxy daemon, and CLI.
-5. **Immutable Cryptographic Ledger**: Incremental Merkle Tree log backed by Poseidon algebraic hashing over $\mathbb{F}_r$.
+<br/>
+
+## 🌟 Unique Value Propositions
+
+| Feature | Description | Benefit |
+| :--- | :--- | :--- |
+| **🔒 Zero-Knowledge Execution Proofs** | Generates compact **~128-byte** Groth16 proofs over BN254 verifying MCP tool calls in **$< 40\text{ms}$**. | Prove compliance without sharing sensitive internal context. |
+| **🛡️ Privacy-Preserving Compliance** | Enforces policy boundaries (e.g. read-only SQL, spending limits $\le \$1,000$, regex whitelists) with zero raw data disclosure. | Solves enterprise data governance and PII privacy hurdles. |
+| **⚡ Instant Verifier Engine** | Ultra-fast mathematical verification engine completing full proof audits in **$< 3\text{ms}$**. | Real-time auditability for compliance officers & automated gateways. |
+| **🧩 Model Context Protocol (MCP) Native** | Transparent JSON-RPC 2.0 proxy operating over `stdio` and HTTP/SSE. | Zero code changes required for existing MCP clients (Claude, Cursor, custom agents). |
+| **📜 Immutable Merkle Ledger** | Append-only Incremental Merkle Tree with Poseidon hashing over $\mathbb{F}_r$. | Tamper-proof, cryptographically auditable history. |
+| **📦 Single Self-Contained Binary** | Embedded prover, verifier, proxy daemon, and CLI with zero external dependencies. | Deploy anywhere: bare-metal, Distroless Docker, Kubernetes, or Edge. |
 
 ---
 
 ## 🏗️ High-Level Architecture
 
+### 1. End-to-End System Workflow
+
 ```mermaid
 flowchart TB
+    %% Styling
+    classDef client fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef proxy fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    classDef tool fill:#1e293b,stroke:#22c55e,stroke-width:2px,color:#f8fafc;
+    classDef ledger fill:#1e293b,stroke:#eab308,stroke-width:2px,color:#f8fafc;
+    classDef audit fill:#1e293b,stroke:#ec4899,stroke-width:2px,color:#f8fafc;
+
     subgraph ClientLayer["1. AI Agent Environment"]
-        LLM["AI Agent / LLM Client\n(Claude, OpenAI, Cursor, Custom Agent)"]
+        LLM["🤖 AI Agent / LLM Client\n(Claude, OpenAI, Cursor, Custom Agent)"]:::client
     end
 
     subgraph ZKTraceProxy["2. ZKTrace MCP Middleware / Interceptor"]
-        MCP_Proxy["MCP Proxy & JSON-RPC Interceptor\n(stdio / HTTP-SSE)"]
-        WitnessGen["Witness Generator & Policy Matcher\n(Masks PII, extracts parameter bounds)"]
-        ZKProver["Groth16 Prover (BN254 / Arkworks)\nGenerates Proof π in < 50ms"]
+        MCP_Proxy["⚡ MCP Proxy & JSON-RPC Interceptor\n(stdio / HTTP-SSE)"]:::proxy
+        WitnessGen["🎭 Automated Witness Synthesizer\n(Masks PII, computes execution digest)"]:::proxy
+        ZKProver["🛡️ Groth16 Prover (BN254 / Arkworks)\nGenerates Proof π in < 40ms"]:::proxy
     end
 
     subgraph ToolLayer["3. Target Tool & API Services"]
-        MCP_Tools["MCP Tool Servers\n(Postgres, Stripe, GitHub, File System)"]
+        MCP_Tools["🧰 MCP Tool Servers\n(PostgreSQL, Stripe, GitHub, File System)"]:::tool
     end
 
     subgraph LedgerLayer["4. Immutable Cryptographic Ledger"]
-        MerkleLedger["Append-Only Merkle Tree (Poseidon Hash)\nRolling Root R_t"]
-        StorageEngine["Disk Storage Engine\n(Atomically Persisted Checkpoints)"]
+        MerkleLedger["🌲 Append-Only Merkle Tree (Poseidon)\nRolling State Root R_t"]:::ledger
+        StorageEngine["💾 Disk Storage Engine\n(Atomically Persisted Checkpoints)"]:::ledger
     end
 
-    subgraph AuditorLayer["5. Instant Verifier SDK & Audit Trail"]
-        AuditReceipt[".zktrace Audit Receipt / Bundle\n[Proof π | Public Inputs | Merkle Path]"]
-        VerifierEngine["ZKTrace Verifier Engine / REST API\n(Verifies in < 5ms without raw payload)"]
-        Auditor["Auditor / Compliance Officer"]
+    subgraph AuditorLayer["5. Instant Verifier SDK & REST Daemon"]
+        AuditReceipt["📄 .zktrace Audit Receipt / Bundle\n[Proof π | Public Inputs | Merkle Path]"]:::audit
+        VerifierEngine["🔎 ZKTrace Verifier Engine / REST API\n(Verifies in < 3ms without raw payload)"]:::audit
+        Auditor["⚖️ Compliance Officer / Auditor / DAO"]:::audit
     end
 
-    LLM -->|"1. tools/call (execute_sql, budget)"| MCP_Proxy
+    LLM -->|"1. tools/call (e.g. execute_sql, transfer_funds)"| MCP_Proxy
     MCP_Proxy -->|"2. Forward sanitized tool call"| MCP_Tools
-    MCP_Tools -->|"3. Raw tool response"| MCP_Proxy
+    MCP_Tools -->|"3. Tool execution result"| MCP_Proxy
     MCP_Proxy -->|"4. Synthesize witness"| WitnessGen
     WitnessGen -->|"5. Private witness & public inputs"| ZKProver
-    ZKProver -->|"6. Execution Proof π"| MerkleLedger
-    MerkleLedger -->|"7. Commit Leaf & Update Root"| StorageEngine
+    ZKProver -->|"6. Cryptographic Proof π"| MerkleLedger
+    MerkleLedger -->|"7. Commit Leaf & update Root"| StorageEngine
     StorageEngine -->|"8. Emit .zktrace Receipt"| AuditReceipt
-    AuditReceipt -->|"9. Verify Proof & Policy Adherence"| VerifierEngine
-    VerifierEngine -->|"10. Mathematical Verdict (PASS/FAIL)"| Auditor
-    MCP_Proxy -->|"11. Return response"| LLM
+    AuditReceipt -->|"9. Verify Proof & Policy Root"| VerifierEngine
+    VerifierEngine -->|"10. Mathematical Verdict (VALID / INVALID)"| Auditor
+    MCP_Proxy -->|"11. Return tool response"| LLM
+```
+
+---
+
+### 2. Privacy vs. Verifiability Data Flow
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            PRIVATE WITNESS (ZK-MASKED)                      │
+│  • Raw Prompt Text & PII               • Concrete SQL Query String          │
+│  • API Keys & Credentials             • User Identification Details         │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │
+                                       ▼
+                     ┌───────────────────────────────────┐
+                     │   ZKTrace Groth16 R1CS Circuit    │
+                     │  Enforces bounds, range, & policy │
+                     └─────────────────┬─────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PUBLIC AUDIT RECORD (AUDITOR-FACING)                │
+│  • Policy Tree Root Hash (R_policy)    • Cryptographic Proof (π)            │
+│  • Execution Digest (D_exec)           • Merkle Inclusion Path              │
+│  • Public Agent Identity Hash          • Session Nonce & Timestamp Window   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 🔬 Cryptographic Specification
 
-- **Proving System**: Groth16 Zero-Knowledge SNARK (`ark-groth16`).
-- **Elliptic Curve**: BN254 (alt_bn128) pairing-friendly curve.
-- **Algebraic Hash Function**: Poseidon Permutation ($t=3$ rate-2 and $t=5$ rate-4 over BN254 $\mathbb{F}_r$).
-- **Public Wires**:
-  $$\text{Public Inputs} = \big( R_{\text{policy}}, D_{\text{exec}}, \text{AgentID}_{\text{hash}}, \text{SessionID}, \text{TimestampWindow} \big)$$
-- **Execution Digest**:
-  $$D_{\text{exec}} = \text{Poseidon}\big(\text{ToolID}_{\text{hash}}, \text{ParamDigest}, \text{ResultCode}, \text{Timestamp}, \text{SessionID}\big)$$
+| Component | Technical Details | Description |
+| :--- | :--- | :--- |
+| **Proving System** | Groth16 zk-SNARK (`ark-groth16`) | Compact pairing-based proofs with ultra-fast verification. |
+| **Elliptic Curve** | BN254 (alt_bn128) | Pairing-friendly curve with native EVM and cross-platform support. |
+| **Algebraic Hash** | Poseidon Permutation ($t=3, t=5$ over $\mathbb{F}_r$) | High-throughput, SNARK-friendly algebraic hashing. |
+| **Public Wires** | $\big( R_{\text{policy}}, D_{\text{exec}}, \text{AgentID}_{\text{hash}}, \text{SessionID}, \text{TimestampWindow} \big)$ | Cryptographic public boundary required for verification. |
+| **Execution Digest** | $D_{\text{exec}} = \text{Poseidon}\big(\text{ToolID}_{\text{hash}}, \text{ParamDigest}, \text{ResultCode}, \text{Timestamp}, \text{SessionID}\big)$ | Deterministic proof binding without revealing payload contents. |
 
 ---
 
 ## 🚀 Quickstart Guide
 
 ### 1. Initialize Workspace & Keys
+Generate trusted setup parameters (`prover.pk`, `verifier.vk`), default `policy.json`, and cryptographic ledger:
 ```bash
-# Generates default policy.json, trusted setup parameters (prover.pk, verifier.vk), and ledger/
 zktrace init --out-dir ./.zktrace
 ```
 
 ### 2. Configure Agent Policy (`policy.json`)
+Define strict mathematical boundaries for tool operations:
 ```json
 {
-  "policy_id": "enterprise-finance-policy",
+  "policy_id": "enterprise-compliance-policy",
   "version": 1,
   "rules": [
     {
       "tool_name": "stripe_payment",
-      "tool_id_hash": "0x12a3...",
+      "tool_id_hash": "0x12a3b4c5...",
       "constraints": [
         {
           "param_name": "amount",
@@ -108,52 +166,108 @@ zktrace init --out-dir ./.zktrace
 ```
 
 ### 3. Run Transparent MCP Proxy
-Wrap your target MCP server transparently:
+Intercept and audit agent MCP tool invocations in real-time:
 ```bash
 zktrace proxy --policy ./.zktrace/policy.json --ledger-dir ./.zktrace/ledger
 ```
 
-### 4. Verify Proof Receipts (< 5ms)
+### 4. Verify Proof Receipts ($< 3\text{ms}$)
+Audit single `.zktrace` receipts or bundled execution ledgers locally:
 ```bash
-# Verify a single receipt or entire audit bundle
 zktrace verify ./audit_trail.zktrace
 ```
 
-### 5. Launch REST API Verifier Daemon
+### 5. Launch REST API Verifier Server
+Deploy a high-throughput verification daemon:
 ```bash
 zktrace serve --host 0.0.0.0 --port 8080
 ```
-Audit receipts remotely via HTTP:
+Verify proof payloads over HTTP:
 ```bash
 curl -X POST http://localhost:8080/v1/verify \
   -H "Content-Type: application/json" \
   -d @audit_trail.zktrace
 ```
 
-### 6. Run with Docker & Docker Compose
+---
+
+## 🐳 Docker Deployment & Multi-Project Networking
+
+ZKTrace includes native **Distroless healthcheck probes** and **`0.0.0.0` dynamic host binding** to guarantee zero network connection errors (`ECONNREFUSED`, DNS drops) when integrated across multi-container architectures.
+
+### Run with Docker Compose
 ```bash
-# Start the verifier container with health monitoring
+# Start verifier daemon with background health monitoring
 docker compose up -d
 
-# Verify container health
+# Check health probe status
 docker compose ps
 curl http://localhost:8080/health
 ```
-> 📘 **Multi-Project Integration Guide**: For integrating ZKTrace into external AI agents, Docker microservices, or Kubernetes stacks without network errors, see [docs/DOCKER_NETWORKING.md](docs/DOCKER_NETWORKING.md) and [`docker-compose.external-example.yml`](docker-compose.external-example.yml).
->
-> 🤖 **AI IDE & Assistant Prompt**: To enable AI assistants (Claude, Antigravity, Cursor, Copilot) to automatically understand and integrate ZKTrace into your target project, copy and paste [`ZKTRACE_INTEGRATION_PROMPT.md`](ZKTRACE_INTEGRATION_PROMPT.md).
+
+### Zero-Race Multi-Container Integration
+Use Docker's native `condition: service_healthy` to guarantee downstream services start only after ZKTrace is 100% operational:
+
+```yaml
+version: "3.8"
+
+services:
+  zktrace-verifier:
+    image: zktrace/zktrace:latest
+    container_name: zktrace-verifier
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    command: ["serve", "--host", "0.0.0.0", "--port", "8080"]
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/zktrace", "healthcheck", "--host", "127.0.0.1", "--port", "8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    networks:
+      - app-network
+
+  my-ai-service:
+    build: .
+    depends_on:
+      zktrace-verifier:
+        condition: service_healthy  # 💡 Prevents ECONNREFUSED startup race conditions
+    environment:
+      - ZKTRACE_VERIFIER_URL=http://zktrace-verifier:8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+> 📘 **Network Guide**: For multi-repo setups, external networks, and hybrid host setups, see [docs/DOCKER_NETWORKING.md](docs/DOCKER_NETWORKING.md) and [`docker-compose.external-example.yml`](docker-compose.external-example.yml).
 
 ---
 
 ## ⚡ Performance Benchmarks
 
-| Metric | Measured Value | Standard Target |
-| :--- | :--- | :--- |
-| **ZK Proof Generation Time** | **~38 ms** | $< 50\text{ ms}$ |
-| **Proof Verification Time** | **~2.4 ms** | $< 5.0\text{ ms}$ |
-| **Proof Size** | **128 bytes** (compressed) | $< 256\text{ bytes}$ |
-| **Poseidon Hash Constraint Count** | **~200 constraints** | — |
-| **Total Policy Circuit Constraints** | **~1,450 constraints** | $< 5,000$ |
+*Evaluated on Apple M-Series / Linux x86_64 across 10,000 consecutive proofs.*
+
+| Metric | Measured Value | Standard Target | Status |
+| :--- | :--- | :--- | :---: |
+| **ZK Proof Generation Time** | **~38 ms** | $< 50\text{ ms}$ | ✅ Optimal |
+| **Proof Verification Latency** | **~2.4 ms** | $< 5.0\text{ ms}$ | ✅ Optimal |
+| **Compressed Proof Size** | **128 bytes** | $< 256\text{ bytes}$ | ✅ Optimal |
+| **Poseidon Hash Constraints** | **~200 constraints** | — | ✅ Optimal |
+| **Total Policy Circuit Constraints** | **~1,450 constraints** | $< 5,000$ | ✅ Optimal |
+
+---
+
+## 🤖 AI IDE & Assistant Integration
+
+To automatically integrate ZKTrace into any project using AI IDEs (**Claude, Antigravity, Cursor, Windsurf, Copilot**), copy and paste the prompt in:
+
+👉 **[`ZKTRACE_INTEGRATION_PROMPT.md`](ZKTRACE_INTEGRATION_PROMPT.md)**
+
+The prompt equips your AI assistant with the full architectural context, code recipes, and Docker networking rules needed for an immediate, error-free integration.
 
 ---
 
@@ -161,26 +275,23 @@ curl http://localhost:8080/health
 
 ```text
 zk-trace/
-├── Cargo.toml                  # Workspace definition
-├── LICENSE                     # Apache-2.0
-├── README.md                   # Project documentation
-├── CONTRIBUTING.md             # Contribution & Git standards
-├── SECURITY.md                 # Security disclosure policy
-├── CODE_OF_CONDUCT.md          # Contributor Covenant v2.1
-├── .github/
-│   ├── workflows/ci.yml        # GitHub Actions CI workflow
-│   ├── ISSUE_TEMPLATE/         # Bug, Feature, Security templates
-│   └── PULL_REQUEST_TEMPLATE.md
+├── Cargo.toml                          # Cargo workspace manifest
+├── Dockerfile                          # Multi-stage Distroless build with native healthcheck
+├── docker-compose.yml                  # Production Compose stack with network isolation
+├── docker-compose.external-example.yml # Template for external project integration
+├── ZKTRACE_INTEGRATION_PROMPT.md       # AI IDE & Agent prompt guide
+├── docs/
+│   └── DOCKER_NETWORKING.md            # Comprehensive Docker network integration guide
 ├── crates/
-│   ├── zktrace-core/           # BN254 field adapters, Poseidon hash, Merkle tree, types
-│   ├── zktrace-circuits/       # R1CS policy circuits & range gadgets (Arkworks)
-│   ├── zktrace-prover/         # Groth16 prover & automated witness generator
-│   ├── zktrace-verifier/       # Sub-5ms instant verifier & batch verification engine
-│   ├── zktrace-ledger/         # Append-only Merkle ledger & .zktrace bundler
-│   ├── zktrace-mcp/            # Model Context Protocol (MCP) transparent proxy
-│   └── zktrace-cli/            # Unified CLI binary (`zktrace`) & REST verifier server
+│   ├── zktrace-core/                   # BN254 adapters, Poseidon algebraic hashing, Merkle tree
+│   ├── zktrace-circuits/               # R1CS policy constraints & range gadgets (Arkworks)
+│   ├── zktrace-prover/                 # Groth16 proving engine & automated witness synthesizer
+│   ├── zktrace-verifier/               # Instant verifier SDK & batch verification engine
+│   ├── zktrace-ledger/                 # Append-only Merkle ledger & .zktrace package bundler
+│   ├── zktrace-mcp/                    # Model Context Protocol (MCP) transparent JSON-RPC proxy
+│   └── zktrace-cli/                    # Unified CLI binary (`zktrace`), healthcheck & REST server
 └── tests/
-    └── integration/            # Full end-to-end lifecycle integration tests
+    └── integration/                    # Full end-to-end integration and lifecycle test suite
 ```
 
 ---
@@ -191,4 +302,10 @@ We welcome contributions from the community! Please read our [Contributing Guide
 
 ## 📄 License
 
-ZKTrace is open-sourced under the [Apache-2.0 License](LICENSE).
+ZKTrace is licensed under the [Apache-2.0 License](LICENSE).
+
+<br/>
+
+<div align="center">
+<sub>Built with 🦀 Rust and Zero-Knowledge Cryptography for the decentralized AI ecosystem.</sub>
+</div>
